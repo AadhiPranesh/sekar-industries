@@ -297,7 +297,7 @@
     align-items: center;
     gap: var(--space-2);
     background: rgba(197, 205, 193, 0.3);
-    color: var(--color-primary);
+    color: var(--color-warning-light);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-full);
     font-size: var(--font-size-sm);
@@ -357,7 +357,7 @@
 
 .stat-label {
     font-size: var(--font-size-sm);
-    color: var(--color-gray-500);
+    color: var(--color-warning-light);
     margin-top: var(--space-1);
 }
 

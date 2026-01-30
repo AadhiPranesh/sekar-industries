@@ -174,7 +174,7 @@ export const mockProducts = [
         stock: 48,
         lowStockThreshold: 10,
         isFeatured: false,
-        image: '/images/products/low-back-chair.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197330/NO/IU/CT/113411322/rweewrwerwer-500x500.jpeg'
     },
     {
         id: 'prod-007',
@@ -187,7 +187,7 @@ export const mockProducts = [
         stock: 52,
         lowStockThreshold: 10,
         isFeatured: true,
-        image: '/images/products/s-type-standard.jpg'
+        image: 'https://5.imimg.com/data5/NSDMERP/Default/2023/7/325303530/BU/AG/RT/113411322/set-wheel-1689326466359-500x500.jpg'
     },
     {
         id: 'prod-008',
@@ -200,7 +200,7 @@ export const mockProducts = [
         stock: 35,
         lowStockThreshold: 8,
         isFeatured: true,
-        image: '/images/products/rolling-office-chair.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561697756/ZD/QC/AA/113411322/s-type-rolling-chair-for-office-1000x1000.jpeg'
     },
 
     // Movable Walker & Dining Sets
@@ -215,7 +215,7 @@ export const mockProducts = [
         stock: 25,
         lowStockThreshold: 6,
         isFeatured: false,
-        image: '/images/products/walker.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197647/JB/UA/JP/113411322/wwererwerwerwrw-500x500.jpeg'
     },
     {
         id: 'prod-010',
@@ -228,7 +228,7 @@ export const mockProducts = [
         stock: 40,
         lowStockThreshold: 10,
         isFeatured: false,
-        image: '/images/products/s-visitor-chair.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561699710/KE/EF/KA/113411322/s-type-visitor-chair-500x500.jpeg'
     },
     {
         id: 'prod-011',
@@ -241,7 +241,7 @@ export const mockProducts = [
         stock: 18,
         lowStockThreshold: 5,
         isFeatured: true,
-        image: '/images/products/2-seater-teak.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456198102/KV/CR/YR/113411322/wrwerwererewrwr-500x500.jpeg'
     },
     {
         id: 'prod-012',
@@ -254,7 +254,7 @@ export const mockProducts = [
         stock: 12,
         lowStockThreshold: 4,
         isFeatured: true,
-        image: '/images/products/polished-teak-dining.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197851/TM/AP/RC/113411322/ewrwerwerwerwrwrw-500x500.jpeg'
     },
 
     // Wooden Chairs & Tables
@@ -269,7 +269,7 @@ export const mockProducts = [
         stock: 8,
         lowStockThreshold: 3,
         isFeatured: true,
-        image: '/images/products/maharaja-dining.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456198600/ZW/IS/YE/113411322/etrtertertertete-500x500.jpeg'
     },
     {
         id: 'prod-014',
@@ -282,7 +282,7 @@ export const mockProducts = [
         stock: 22,
         lowStockThreshold: 6,
         isFeatured: false,
-        image: '/images/products/antique-teak-chair.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456346650/BC/MD/DR/113411322/rerwerwerwer-500x500.jpeg'
     },
     {
         id: 'prod-015',
@@ -295,7 +295,7 @@ export const mockProducts = [
         stock: 45,
         lowStockThreshold: 10,
         isFeatured: false,
-        image: '/images/products/s-type-steel.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561697923/YX/EH/RB/113411322/office-s-type-chair-500x500.jpeg'
     },
     {
         id: 'prod-016',
@@ -308,7 +308,7 @@ export const mockProducts = [
         stock: 12,
         lowStockThreshold: 4,
         isFeatured: true,
-        image: '/images/products/rect-teak-table.jpg'
+        image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456345680/AB/TN/NS/113411322/rectangular-teak-wood-table-500x500.jpg'
     }
 ];
 
