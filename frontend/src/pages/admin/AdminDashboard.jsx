@@ -2,9 +2,9 @@
  * Admin Dashboard - Today's View
  * Simple status board showing today's business snapshot
  */
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import SalesTrendGraph from '../../components/admin/SalesTrendGraph';
 
 const AdminDashboard = () => {
     // TODO: Replace with API fetch
@@ -92,6 +92,9 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Sales Trend Graph */}
+            <SalesTrendGraph />
 
             {/* Low Stock Products Section */}
             {lowStockProducts.length > 0 && (
