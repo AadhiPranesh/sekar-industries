@@ -30,7 +30,8 @@ const ProductCard = ({ product, style }) => {
         price,
         unit,
         availability,
-        isExclusive
+        isExclusive,
+        image
     } = product;
 
     const categoryIcon = categoryIcons[category] || <Icons.Orders />;
@@ -38,13 +39,17 @@ const ProductCard = ({ product, style }) => {
     return (
         <Link to={`/product/${id}`} className="product-card" style={style}>
             <div className="product-image">
-                <span className="product-icon-wrap">
-                    {typeof categoryIcon === 'string' ? (
-                        <span style={{ fontSize: '3rem' }}>{categoryIcon}</span>
-                    ) : (
-                        categoryIcon
-                    )}
-                </span>
+                {image ? (
+                    <img src={image} alt={name} className="product-img" />
+                ) : (
+                    <span className="product-icon-wrap">
+                        {typeof categoryIcon === 'string' ? (
+                            <span style={{ fontSize: '3rem' }}>{categoryIcon}</span>
+                        ) : (
+                            categoryIcon
+                        )}
+                    </span>
+                )}
                 {isExclusive && (
                     <div className="manufacturer-exclusive-badge">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

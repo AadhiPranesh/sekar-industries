@@ -5,6 +5,10 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Categories from './pages/Categories';
 import About from './pages/About';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 // Admin Pages
 import AdminLayout from './components/admin/AdminLayout';
@@ -36,6 +40,10 @@ function App() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/about" element={<About />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* Admin Routes - Owner back office entrance */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />

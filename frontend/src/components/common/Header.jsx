@@ -92,6 +92,13 @@ const Header = () => {
                     </nav>
 
                     <div className="header-actions">
+                        <Link to="/login" className="btn-secondary btn-sm">
+                            Login
+                        </Link>
+                        <Link to="/signup" className="btn-primary btn-sm">
+                            Sign Up
+                        </Link>
+                        
                         <button
                             className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
                             onClick={toggleSearch}

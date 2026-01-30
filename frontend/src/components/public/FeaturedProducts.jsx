@@ -75,10 +75,6 @@ const FeaturedProducts = ({ products, loading }) => {
                             <div
                                 key={index}
                                 className={`carousel-slide ${index === currentSlide ? 'active' : ''}`}
-                                style={{
-                                    transform: `translateX(${(index - currentSlide) * 100}%)`,
-                                    opacity: index === currentSlide ? 1 : 0
-                                }}
                             >
                                 <div className="carousel-image-wrapper">
                                     <div
