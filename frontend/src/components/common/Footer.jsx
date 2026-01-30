@@ -39,10 +39,10 @@ const Footer = () => {
                     <div className="footer-section">
                         <h4>Categories</h4>
                         <div className="footer-links">
-                            <Link to="/products?category=Electrical" className="footer-link">Electrical</Link>
-                            <Link to="/products?category=Hardware" className="footer-link">Hardware</Link>
-                            <Link to="/products?category=Plumbing" className="footer-link">Plumbing</Link>
-                            <Link to="/products?category=Paints" className="footer-link">Paints</Link>
+                            <Link to="/products?category=Woven%20%26%20Folding" className="footer-link">Woven & Folding</Link>
+                            <Link to="/products?category=Steel%20Furniture" className="footer-link">Steel Furniture</Link>
+                            <Link to="/products?category=Wooden%20Furniture" className="footer-link">Wooden Furniture</Link>
+                            <Link to="/products?category=Dining%20Sets" className="footer-link">Dining Sets</Link>
                         </div>
                     </div>
 
@@ -50,7 +50,7 @@ const Footer = () => {
                         <h4>Contact Us</h4>
                         <div className="footer-links">
                             <span className="footer-link contact-footer-item">
-                                <Icons.Location /> Chennai, India
+                                <Icons.Location /> Erode, India
                             </span>
                             <span className="footer-link contact-footer-item">
                                 <Icons.Phone /> +91 98765 43210

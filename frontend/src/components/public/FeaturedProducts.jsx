@@ -15,21 +15,21 @@ const FeaturedProducts = ({ products, loading }) => {
         {
             title: "Heavy Duty Folding Cots",
             description: "Portable and durable cots with high-strength woven surface",
-            image: "/images/products/heavy-cot.jpg",
+            image: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=600&h=500&fit=crop",
             category: "Woven & Folding",
             link: "/products?category=Woven%20%26%20Folding"
         },
         {
             title: "Premium S-Type Chairs",
             description: "Steel-framed visitor chairs with superior comfort and durability",
-            image: "/images/products/chair-set.jpg",
+            image: "https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600&h=500&fit=crop",
             category: "Steel Furniture",
             link: "/products?category=Steel%20Furniture"
         },
         {
             title: "Signature Oval Dining Sets",
             description: "Manufacturer Exclusive - Handcrafted wooden dining sets",
-            image: "/images/products/oval-dining.jpg",
+            image: "https://ik.imagekit.io/2xkwa8s1i/img/npl_raw_images/WSFA_M/WSFACRO1FMMG/WSFACRO1FMMG_1.jpg?tr=w-1200",
             category: "Dining Sets",
             badge: "EXCLUSIVE",
             link: "/products?category=Dining%20Sets"

@@ -113,7 +113,11 @@ const ProductDetail = () => {
                         <div className="product-detail-content">
                             <div className="product-detail-image">
                                 <div className="product-image-main">
-                                    <span className="product-icon-large">{categoryIcon}</span>
+                                    {product.image ? (
+                                        <img src={product.image} alt={product.name} className="product-image" />
+                                    ) : (
+                                        <span className="product-icon-large">{categoryIcon}</span>
+                                    )}
                                 </div>
                                 <div className="product-detail-badge">
                                     <AvailabilityBadge availability={product.availability} />
