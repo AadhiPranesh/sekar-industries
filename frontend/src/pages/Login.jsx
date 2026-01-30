@@ -58,13 +58,36 @@ const Login = () => {
 
         setIsLoading(true);
 
-        // TODO: Replace with actual API call
-        setTimeout(() => {
-            console.log('Login attempt:', formData);
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                alert('Login successful!');
+                navigate('/');
+            } else {
+                setErrors({ form: data.message });
+                alert(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Network error. Please try again.');
+        } finally {
             setIsLoading(false);
-            // Navigate to home after successful login
-            navigate('/');
-        }, 1500);
+        }
     };
 
     return (

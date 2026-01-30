@@ -5,6 +5,7 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Categories from './pages/Categories';
 import About from './pages/About';
+import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
@@ -23,6 +24,7 @@ import WhatsAppButton from './components/common/WhatsAppButton';
 import './styles/variables.css';
 import './styles/global.css';
 import './styles/public.css';
+import './styles/contact.css';
 import './styles/admin.css';
 import './styles/responsive.css';
 import './styles/dashboard.css';
@@ -40,6 +42,7 @@ function App() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -209,6 +209,96 @@
     transform: rotate(-45deg) translate(7px, -6px);
 }
 
+/* Profile Menu */
+.profile-menu {
+    position: relative;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-3);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-normal);
+    width: 55px;
+    height: 55px;
+}
+
+.profile-btn:hover {
+    background: rgba(45, 71, 62, 0.05);
+    transform: scale(1.1);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    min-width: 250px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.profile-header {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-color-light);
+    background: var(--bg-primary);
+}
+
+.profile-header h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin: 0 0 4px 0;
+}
+
+.profile-header p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-link {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-normal);
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.profile-link:hover {
+    background: var(--bg-tertiary);
+    color: var(--color-primary);
+}
+
+.logout-btn {
+    border-top: 1px solid var(--border-color-light);
+    margin-top: var(--space-2);
+    color: var(--color-danger);
+}
+
+.logout-btn:hover {
+    background: rgba(193, 119, 103, 0.1);
+    color: var(--color-danger-light);
+}
 
 /* ============================================
    HERO SECTION
@@ -1509,12 +1599,17 @@
 }
 
 .search-toggle-btn {
-    padding: var(--space-2);
+    padding: var(--space-3);
     color: var(--color-primary);
     transition: all var(--transition-normal);
     border-radius: var(--radius-md);
     position: relative;
     overflow: hidden;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-toggle-btn::before {

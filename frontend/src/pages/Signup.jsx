@@ -79,13 +79,36 @@ const Signup = () => {
 
         setIsLoading(true);
 
-        // TODO: Replace with actual API call
-        setTimeout(() => {
-            console.log('Signup attempt:', formData);
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Account created successfully! Please login.');
+                navigate('/login');
+            } else {
+                setErrors({ form: data.message });
+                alert(data.message || 'Signup failed');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('Network error. Please try again.');
+        } finally {
             setIsLoading(false);
-            // Navigate to login after successful signup
-            navigate('/login');
-        }, 1500);
+        }
     };
 
     return (

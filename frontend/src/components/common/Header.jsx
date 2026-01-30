@@ -4,13 +4,16 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 
 const Header = () => {
+    const navigate = useNavigate();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -19,6 +22,14 @@ const Header = () => {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Check for logged-in user from localStorage
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
     }, []);
 
     // Close mobile menu when clicking on a link
@@ -32,11 +43,14 @@ const Header = () => {
             if (isSearchOpen && !event.target.closest('.header-search')) {
                 setIsSearchOpen(false);
             }
+            if (isProfileOpen && !event.target.closest('.profile-menu')) {
+                setIsProfileOpen(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isSearchOpen]);
+    }, [isSearchOpen, isProfileOpen]);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -44,6 +58,24 @@ const Header = () => {
 
     const toggleSearch = () => {
         setIsSearchOpen(!isSearchOpen);
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsProfileOpen(false);
+                navigate('/');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     };
 
     return (
@@ -86,18 +118,61 @@ const Header = () => {
                         >
                             About
                         </NavLink>
-                        <a href="#contact" className="nav-link" onClick={handleLinkClick}>
+                        <NavLink
+                            to="/contact"
+                            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                            onClick={handleLinkClick}
+                        >
                             Contact
-                        </a>
+                        </NavLink>
                     </nav>
 
                     <div className="header-actions">
-                        <Link to="/login" className="btn-secondary btn-sm">
-                            Login
-                        </Link>
-                        <Link to="/signup" className="btn-primary btn-sm">
-                            Sign Up
-                        </Link>
+                        {user ? (
+                            <div className="profile-menu">
+                                <button 
+                                    className="profile-btn"
+                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    title={user.name}
+                                >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                                    </svg>
+                                </button>
+
+                                {isProfileOpen && (
+                                    <div className="profile-dropdown">
+                                        <div className="profile-header">
+                                            <h4>{user.name}</h4>
+                                            <p>{user.email}</p>
+                                        </div>
+                                        <div className="profile-actions">
+                                            <Link to="/dashboard" className="profile-link" onClick={() => setIsProfileOpen(false)}>
+                                                📊 Dashboard
+                                            </Link>
+                                            <Link to="/orders" className="profile-link" onClick={() => setIsProfileOpen(false)}>
+                                                📦 Orders
+                                            </Link>
+                                            <Link to="/profile" className="profile-link" onClick={() => setIsProfileOpen(false)}>
+                                                ⚙️ Settings
+                                            </Link>
+                                            <button className="profile-link logout-btn" onClick={handleLogout}>
+                                                🚪 Logout
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <Link to="/login" className="btn-secondary btn-sm">
+                                    Login
+                                </Link>
+                                <Link to="/signup" className="btn-primary btn-sm">
+                                    Sign Up
+                                </Link>
+                            </>
+                        )}
                         
                         <button
                             className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
