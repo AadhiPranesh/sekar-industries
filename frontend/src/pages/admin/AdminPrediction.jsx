@@ -1,27 +1,20 @@
 /**
  * Admin Sales Prediction
- * AI-Powered forecasting view to predict next month's demand and revenue
- * Uses mock data for demonstration
+ * Real-time connection to Python ML Service via Node.js
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-    AreaChart, 
-    Area, 
-    XAxis, 
-    YAxis, 
-    CartesianGrid, 
-    Tooltip, 
-    ResponsiveContainer, 
-    ReferenceLine
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
+import { productList } from '../../api/productConfig'; 
 
 const formatCurrency = (amount) => `₹${amount.toLocaleString('en-IN')}`;
 
-const CustomTooltip = ({ active, payload, label, currentPrice }) => {
+const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-        const quantity = payload[0].value;
-        const revenue = quantity * currentPrice;
+        const data = payload[0].payload; 
+        const revenue = data.type === 'history' ? data.revenue : data.revenue; 
         
         return (
             <div style={{ 
@@ -35,7 +28,7 @@ const CustomTooltip = ({ active, payload, label, currentPrice }) => {
                     {label}
                 </p>
                 <p style={{ margin: '0', color: '#374151', fontSize: '14px' }}>
-                    Sales: <strong>{quantity} Units</strong>
+                    Sales: <strong>{payload[0].value} Units</strong>
                 </p>
                 <p style={{ margin: '0', color: '#16a34a', fontSize: '14px', fontWeight: '500' }}>
                     Revenue: {formatCurrency(revenue)}
@@ -47,68 +40,65 @@ const CustomTooltip = ({ active, payload, label, currentPrice }) => {
 };
 
 const AdminPrediction = () => {
-    const [selectedProduct, setSelectedProduct] = useState('prod-001');
+    const [selectedProduct, setSelectedProduct] = useState(productList[0].id);
+    const [apiData, setApiData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    //MOCK DATA
-    const predictionsDB = {
-        'prod-001': {
-            id: 'prod-001',
-            name: 'Niwar Folding Cot',
-            currentPrice: 2500,
-            // SCENARIO: Stock (85) > Predicted (67) = SUFFICIENT
-            currentStock: 85, 
-            prediction: {
-                quantity: 67,
-                revenue: 167500,
-                nextMonthLabel: 'Nov 2024'
-            },
-            history: [
-                { date: 'Jun', sales: 45 },
-                { date: 'Jul', sales: 52 },
-                { date: 'Aug', sales: 49 },
-                { date: 'Sep', sales: 60 },
-                { date: 'Oct', sales: 58 },
-            ]
-        },
-        'prod-005': {
-            id: 'prod-005',
-            name: 'S-Type Visitor Chair',
-            currentPrice: 1850,
-            currentStock: 90, 
-            prediction: {
-                quantity: 42,
-                revenue: 77700,
-                nextMonthLabel: 'Nov 2024'
-            },
-            history: [
-                { date: 'Jun', sales: 30 },
-                { date: 'Jul', sales: 35 },
-                { date: 'Aug', sales: 40 },
-                { date: 'Sep', sales: 42 },
-                { date: 'Oct', sales: 41 },
-            ]
-        },
-        'prod-013': {
-            id: 'prod-013',
-            name: 'Oval Top Dining Set',
-            currentPrice: 25500,
-            currentStock: 5, 
-            prediction: {
-                quantity: 12,
-                revenue: 306000,
-                nextMonthLabel: 'Nov 2024'
-            },
-            history: [
-                { date: 'Jun', sales: 8 },
-                { date: 'Jul', sales: 15 },
-                { date: 'Aug', sales: 14 },
-                { date: 'Sep', sales: 10 },
-                { date: 'Oct', sales: 15 },
-            ]
-        }
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await fetch(`http://localhost:8000/dashboard/${selectedProduct}`);
+                
+                if (!res.ok) {
+                    throw new Error(`Server Error: ${res.status}`);
+                }
+                
+                const data = await res.json();
+                setApiData(data);
+                
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [selectedProduct]);
+
+    if (loading) {
+        return (
+            <div className="admin-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                <p style={{ color: '#6b7280', fontSize: '1.2rem' }}>🔄 Analyzing Sales Data...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="admin-page" style={{ padding: '40px' }}>
+                <div style={{ padding: '20px', background: '#fee2e2', color: '#dc2626', borderRadius: '8px' }}>
+                    <h3>⚠️ Prediction Failed</h3>
+                    <p>Could not connect to the Forecasting Service.</p>
+                    <small>Error: {error}</small>
+                </div>
+            </div>
+        );
+    }
+
+    if (!apiData) return null;
+
+    const currentData = {
+        name: selectedProduct,
+        currentPrice: apiData.current_price,
+        currentStock: apiData.current_stock,
+        prediction: apiData.prediction,
+        history: apiData.history_graph  
     };
-
-    const currentData = predictionsDB[selectedProduct];
 
     let stockStatus = 'Sufficient';
     let stockColor = 'success'; 
@@ -116,17 +106,15 @@ const AdminPrediction = () => {
     if (currentData.currentStock < 10) {
         stockStatus = 'Low Stock';
         stockColor = 'warning';
-    } 
-
-    else if (currentData.prediction.quantity > currentData.currentStock) {
+    } else if (currentData.prediction.predicted_quantity > currentData.currentStock) {
         stockStatus = 'Insufficient';
         stockColor = 'danger';
     }
 
     const colors = {
-        success: { border: '#16a34a', bg: '#dcfce7', text: '#16a34a', icon: 'M5 13l4 4L19 7' }, // Checkmark
-        warning: { border: '#eab308', bg: '#fef9c3', text: '#ca8a04', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }, // Warning
-        danger:  { border: '#dc2626', bg: '#fee2e2', text: '#dc2626', icon: 'M6 18L18 6M6 6l12 12' } // X mark
+        success: { border: '#16a34a', bg: '#dcfce7', text: '#16a34a', icon: 'M5 13l4 4L19 7' },
+        warning: { border: '#eab308', bg: '#fef9c3', text: '#ca8a04', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+        danger:  { border: '#dc2626', bg: '#fee2e2', text: '#dc2626', icon: 'M6 18L18 6M6 6l12 12' }
     };
     
     const statusStyle = colors[stockColor];
@@ -135,13 +123,17 @@ const AdminPrediction = () => {
         const historyData = currentData.history.map(h => ({
             name: h.date,
             sales: h.sales,
+            revenue: h.revenue,
             type: 'history'
         }));
+        
         const futureData = {
-            name: currentData.prediction.nextMonthLabel,
-            sales: currentData.prediction.quantity,
+            name: currentData.prediction.date,
+            sales: currentData.prediction.predicted_quantity,
+            revenue: currentData.prediction.predicted_revenue,
             type: 'prediction'
         };
+        
         return [...historyData, futureData];
     };
 
@@ -150,7 +142,7 @@ const AdminPrediction = () => {
             <div className="admin-page-header">
                 <div>
                     <h2 className="admin-page-title">Sales Prediction</h2>
-                    <p className="admin-page-subtitle">AI-powered forecast for upcoming demand</p>
+                    <p className="admin-page-subtitle">Real-time forecast for {selectedProduct}</p>
                 </div>
                 
                 <div className="admin-actions">
@@ -160,7 +152,7 @@ const AdminPrediction = () => {
                         value={selectedProduct}
                         onChange={(e) => setSelectedProduct(e.target.value)}
                     >
-                        {Object.values(predictionsDB).map(p => (
+                        {productList.map(p => (
                             <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
                     </select>
@@ -178,8 +170,8 @@ const AdminPrediction = () => {
                     </div>
                     <div className="stat-content">
                         <p className="stat-label">Predicted Sales</p>
-                        <p className="stat-value">{currentData.prediction.quantity} Units</p>
-                        <p className="stat-detail">Forecast for {currentData.prediction.nextMonthLabel}</p>
+                        <p className="stat-value">{currentData.prediction.predicted_quantity} Units</p>
+                        <p className="stat-detail">Forecast for {currentData.prediction.date}</p>
                     </div>
                 </div>
 
@@ -192,7 +184,7 @@ const AdminPrediction = () => {
                     </div>
                     <div className="stat-content">
                         <p className="stat-label">Projected Revenue</p>
-                        <p className="stat-value">{formatCurrency(currentData.prediction.revenue)}</p>
+                        <p className="stat-value">{formatCurrency(currentData.prediction.predicted_revenue)}</p>
                         <p className="stat-detail">Based on price {formatCurrency(currentData.currentPrice)}</p>
                     </div>
                 </div>
@@ -208,7 +200,7 @@ const AdminPrediction = () => {
                         <p className="stat-label">Inventory Status</p>
                         <p className="stat-value" style={{ color: statusStyle.text }}>{stockStatus}</p>
                         <p className="stat-detail">
-                            Stock: {currentData.currentStock} vs Demand: {currentData.prediction.quantity}
+                            Stock: {currentData.currentStock} vs Demand: {currentData.prediction.predicted_quantity}
                         </p>
                     </div>
                 </div>
@@ -234,11 +226,10 @@ const AdminPrediction = () => {
                                 <XAxis dataKey="name" stroke="#6b7280" tick={{fontSize: 12}} axisLine={{ stroke: '#d1d5db' }} tickLine={false} />
                                 <YAxis stroke="#6b7280" tick={{fontSize: 12}} axisLine={{ stroke: '#d1d5db' }} tickLine={false} />
                                 
-                                {/* We pass currentPrice as a prop to the external CustomTooltip */}
-                                <Tooltip content={<CustomTooltip currentPrice={currentData.currentPrice} />} />
+                                <Tooltip content={<CustomTooltip />} />
                                 
                                 <Area type="monotone" dataKey="sales" stroke="#2D473E" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" activeDot={{ r: 6, fill: '#6B8E7F', stroke: '#fff', strokeWidth: 2 }} />
-                                <ReferenceLine x={currentData.prediction.nextMonthLabel} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'top', value: 'Forecast', fill: '#ef4444', fontSize: 12, fontWeight: 500 }} />
+                                <ReferenceLine x={currentData.prediction.date} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'top', value: 'Forecast', fill: '#ef4444', fontSize: 12, fontWeight: 500 }} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -246,10 +237,9 @@ const AdminPrediction = () => {
                     {/* Insight Text */}
                     <div style={{ padding: '15px', background: '#f8fafc', borderRadius: '8px', marginTop: '10px' }}>
                         <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: 0 }}>
-                            <strong>💡 AI Insight:</strong> Based on historical data from {currentData.history[0].date} to {currentData.history[4].date}, 
-                            demand for <strong>{currentData.name}</strong> is expected to 
-                            {currentData.prediction.quantity > currentData.history[4].sales ? ' increase ' : ' decrease '} 
-                            next month.
+                            <strong>💡 AI Insight:</strong> Based on historical data from {currentData.history[0].date} to {currentData.history[currentData.history.length-1].date}, 
+                            demand for this product is expected to be 
+                            <strong> {currentData.prediction.predicted_quantity} units</strong> next month.
                         </p>
                     </div>
                 </div>
