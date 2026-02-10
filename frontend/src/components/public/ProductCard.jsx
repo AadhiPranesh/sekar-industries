@@ -5,6 +5,7 @@
 
 import { Link } from 'react-router-dom';
 import AvailabilityBadge from './AvailabilityBadge';
+import StarRating from '../common/StarRating';
 import Icons from '../common/Icons';
 
 // Category icons mapping
@@ -31,7 +32,10 @@ const ProductCard = ({ product, style }) => {
         unit,
         availability,
         isExclusive,
-        image
+        isNew,
+        image,
+        rating = 0,
+        reviewCount = 0
     } = product;
 
     const categoryIcon = categoryIcons[category] || <Icons.Orders />;
@@ -58,6 +62,15 @@ const ProductCard = ({ product, style }) => {
                         <span>Exclusive</span>
                     </div>
                 )}
+                {isNew && (
+                    <div className="new-arrival-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span>NEW</span>
+                    </div>
+                )}
                 <div className="product-badge">
                     <AvailabilityBadge availability={availability} />
                 </div>
@@ -67,6 +80,15 @@ const ProductCard = ({ product, style }) => {
                 <div className="product-category">{category}</div>
                 <h3 className="product-name">{name}</h3>
                 <p className="product-description">{description}</p>
+
+                {/* Rating and Reviews */}
+                {(rating > 0 || reviewCount > 0) && (
+                    <div className="product-rating">
+                        <StarRating rating={rating} size="sm" />
+                        <span className="rating-number">{rating.toFixed(1)}</span>
+                        <span className="review-count">({reviewCount})</span>
+                    </div>
+                )}
 
                 <div className="product-footer">
                     <div className="product-price">

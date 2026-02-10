@@ -222,16 +222,27 @@
     color: var(--color-primary);
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 10px;
     border-radius: var(--radius-full);
     transition: all var(--transition-normal);
-    width: 55px;
+    width: auto;
     height: 55px;
+}
+
+.profile-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
 }
 
 .profile-btn:hover {
     background: rgba(45, 71, 62, 0.05);
-    transform: scale(1.1);
+    transform: scale(1.02);
+}
+
+.profile-btn:hover .profile-name {
+    color: var(--color-primary);
 }
 
 .profile-dropdown {
@@ -437,17 +448,17 @@
 .stat-value {
     font-size: var(--font-size-4xl);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: #ffffff !important;
     line-height: 1;
 }
 
 .stat-value span {
-    color: var(--color-white);
+    color: #ffffff !important;
 }
 
 .stat-label {
     font-size: var(--font-size-sm);
-    color: var(--color-warning-light);
+    color: #ffffff !important;
     margin-top: var(--space-1);
 }
 
@@ -962,6 +973,41 @@
     height: 12px;
 }
 
+/* New Arrival Badge in Product Card */
+.new-arrival-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    z-index: 5;
+    animation: newPulse 2s ease-in-out infinite;
+}
+
+@keyframes newPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+    }
+}
+
+.new-arrival-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
 /* ============================================
    CONTACT SECTION
    ============================================ */
@@ -1163,7 +1209,7 @@
 .footer {
     background: var(--bg-dark);
     color: var(--text-inverse);
-    padding: var(--space-16) 0 var(--space-8);
+    padding: var(--space-10) 0 var(--space-6);
     position: relative;
     overflow: hidden;
 }
@@ -1191,8 +1237,8 @@
 .footer-content {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: var(--space-12);
-    margin-bottom: var(--space-12);
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
 }
 
 .footer-brand {
@@ -1210,20 +1256,24 @@
 
 .footer-section h4 {
     color: var(--text-inverse);
-    font-size: var(--font-size-base);
-    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: var(--font-weight-semibold);
 }
 
 .footer-links {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
 .footer-link {
     color: var(--color-gray-400);
     font-size: var(--font-size-sm);
     transition: color var(--transition-normal);
+    line-height: 1.6;
 }
 
 .footer-link:hover {
@@ -1231,7 +1281,7 @@
 }
 
 .footer-bottom {
-    padding-top: var(--space-8);
+    padding-top: var(--space-6);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
@@ -1241,6 +1291,36 @@
 .footer-copyright {
     color: var(--color-gray-500);
     font-size: var(--font-size-sm);
+}
+
+/* Footer Social Links */
+.footer-social {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-social .social-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-inverse);
+    transition: all var(--transition-normal);
+    margin-right: var(--space-2);
+}
+
+.footer-social .social-btn:hover {
+    background: var(--color-secondary);
+    transform: translateY(-2px);
+}
+
+.footer-social .social-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 /* ============================================
@@ -1481,6 +1561,25 @@
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: var(--space-3);
+}
+
+.product-rating .rating-number {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.product-rating .review-count {
+    font-size: 13px;
+    color: #0066C0;
+    font-weight: 500;
 }
 
 .product-footer {
@@ -2829,6 +2928,55 @@
     max-width: 480px;
 }
 
+.success-message-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 1px solid #28a745;
+    border-radius: var(--radius-lg);
+    color: #155724;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: var(--space-4);
+    animation: slideDown 0.4s ease;
+}
+
+.success-message-banner svg {
+    flex-shrink: 0;
+}
+
+.error-message-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border: 1px solid #dc3545;
+    border-radius: var(--radius-lg);
+    color: #721c24;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: var(--space-4);
+    animation: slideDown 0.4s ease;
+}
+
+.error-message-banner svg {
+    flex-shrink: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .auth-icon {
     width: 64px;
     height: 64px;
@@ -3168,4 +3316,44 @@
 .auth-footer p {
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   PRODUCT REVIEWS SECTION
+   ============================================ */
+.product-reviews-section {
+    background: #F9FAFB;
+    padding: 60px 0;
+    margin-top: 40px;
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.reviews-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+    .reviews-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+    
+    .reviews-header .write-review-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .product-reviews-section {
+        padding: 40px 0;
+        margin-top: 24px;
+    }
 }

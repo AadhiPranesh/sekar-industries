@@ -16,6 +16,7 @@ const Login = () => {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -76,15 +77,21 @@ const Login = () => {
             if (data.success) {
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
-                alert('Login successful!');
-                navigate('/');
+                
+                // Show success message
+                setSuccessMessage(`Welcome back, ${data.user.name}! Redirecting...`);
+                
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    navigate('/');
+                    window.location.reload(); // Reload to update header
+                }, 1500);
             } else {
                 setErrors({ form: data.message });
-                alert(data.message || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('Network error. Please try again.');
+            setErrors({ form: 'Network error. Please try again.' });
         } finally {
             setIsLoading(false);
         }
@@ -103,6 +110,24 @@ const Login = () => {
                                     <h1>Welcome Back</h1>
                                     <p>Sign in to your account</p>
                                 </div>
+
+                                {successMessage && (
+                                    <div className="success-message-banner">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        {successMessage}
+                                    </div>
+                                )}
+
+                                {errors.form && (
+                                    <div className="error-message-banner">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                        {errors.form}
+                                    </div>
+                                )}
 
                                 <form className="auth-form" onSubmit={handleSubmit}>
                                     <div className="form-group">

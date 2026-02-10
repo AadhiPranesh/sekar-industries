@@ -84,7 +84,7 @@ const About = () => {
                                         <div className="stat-label">Happy Customers</div>
                                     </div>
                                     <div className="stat-item-large">
-                                        <div className="stat-number">{businessInfo?.stats?.productsAvailable || 500}+</div>
+                                        <div className="stat-number">{businessInfo?.stats?.productsAvailable || 23}+</div>
                                         <div className="stat-label">Products Available</div>
                                     </div>
                                 </div>

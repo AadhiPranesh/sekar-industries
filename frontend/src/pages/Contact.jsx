@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import Breadcrumb from '../components/common/Breadcrumb';
+import Icons from '../components/common/Icons';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -14,7 +15,9 @@ const Contact = () => {
         email: '',
         phone: '',
         subject: '',
-        message: ''
+        message: '',
+        quantity: '1',
+        purchaseType: 'retail'
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -80,15 +83,26 @@ const Contact = () => {
 
         try {
             // Simulate sending email - in production, replace with actual backend call
-            console.log('Contact form submitted:', formData);
+            const priority = parseInt(formData.quantity) >= 10 ? 'HIGH PRIORITY' : 'NORMAL';
+            console.log(`Contact form submitted (${priority}):`, {
+                ...formData,
+                priority,
+                isWholesale: formData.purchaseType === 'wholesale'
+            });
             
-            setSuccessMessage('Thank you for your message! We will get back to you soon.');
+            setSuccessMessage(
+                parseInt(formData.quantity) >= 10 
+                    ? '🎉 Thank you for your bulk inquiry! Our sales team will prioritize your request and contact you within 24 hours.' 
+                    : 'Thank you for your message! We will get back to you soon.'
+            );
             setFormData({
                 name: '',
                 email: '',
                 phone: '',
                 subject: '',
-                message: ''
+                message: '',
+                quantity: '1',
+                purchaseType: 'retail'
             });
 
             // Clear success message after 5 seconds
@@ -103,19 +117,27 @@ const Contact = () => {
 
     const contactInfo = [
         {
-            icon: '📍',
+            icon: Icons.Location,
             title: 'Visit Us',
-            content: 'Sekar Industries, Erode - 600001, India'
+            content: 'Perundurai Road, Erode - 638011, Tamil Nadu, India',
+            link: null,
+            type: 'address'
         },
         {
-            icon: '📞',
+            icon: Icons.Phone,
             title: 'Call Us',
-            content: '+91 98765 43210 / +91 42 2345 6789'
+            content: '+91 98765 43210',
+            secondaryContent: '+91 42 2345 6789',
+            link: 'tel:+919876543210',
+            secondaryLink: 'tel:+914223456789',
+            type: 'phone'
         },
         {
-            icon: '✉️',
+            icon: Icons.Email,
             title: 'Email Us',
-            content: 'info@sekarindustries.com'
+            content: 'info@sekarindustries.com',
+            link: 'mailto:info@sekarindustries.com',
+            type: 'email'
         }
     ];
 
@@ -143,21 +165,42 @@ const Contact = () => {
                 <section className="contact-page-section">
                     <div className="container">
                         <div className="contact-page-content">
-                            {/* Contact Information */}
+                            {/* Contact Information - Slim Horizontal Cards */}
                             <div className="contact-info-grid">
-                                {contactInfo.map((info, index) => (
-                                    <div key={index} className="contact-info-card">
-                                        <div className="contact-info-icon">{info.icon}</div>
-                                        <h3>{info.title}</h3>
-                                        <p>{info.content}</p>
-                                    </div>
-                                ))}
+                                {contactInfo.map((info, index) => {
+                                    const IconComponent = info.icon;
+                                    return (
+                                        <div key={index} className="contact-info-card">
+                                            <div className="contact-info-icon">
+                                                <IconComponent />
+                                            </div>
+                                            <div className="contact-info-text">
+                                                <h3>{info.title}</h3>
+                                                {info.link ? (
+                                                    <>
+                                                        <a href={info.link} className="contact-link">
+                                                            {info.content}
+                                                        </a>
+                                                        {info.secondaryContent && (
+                                                            <a href={info.secondaryLink} className="contact-link">
+                                                                {info.secondaryContent}
+                                                            </a>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <p>{info.content}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             <div className="contact-main-content">
                                 {/* Contact Form */}
                                 <div className="contact-form-container">
                                     <h2>Send us a Message</h2>
+                                    <p className="form-subtitle">We typically respond within 24 hours</p>
                                     
                                     {successMessage && (
                                         <div className="success-message">
@@ -226,6 +269,46 @@ const Contact = () => {
                                             </div>
                                         </div>
 
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label htmlFor="purchaseType">Purchase Type *</label>
+                                                <select
+                                                    id="purchaseType"
+                                                    name="purchaseType"
+                                                    value={formData.purchaseType}
+                                                    onChange={handleChange}
+                                                    className="form-select"
+                                                >
+                                                    <option value="retail">Retail (Small Quantity)</option>
+                                                    <option value="wholesale">Wholesale (Bulk Order)</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label htmlFor="quantity">
+                                                    Quantity Needed *
+                                                    {parseInt(formData.quantity) >= 10 && (
+                                                        <span style={{ color: '#d97706', fontSize: '12px', fontWeight: 'bold', marginLeft: '8px' }}>
+                                                            🔥 BULK ORDER
+                                                        </span>
+                                                    )}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    id="quantity"
+                                                    name="quantity"
+                                                    min="1"
+                                                    value={formData.quantity}
+                                                    onChange={handleChange}
+                                                    className="form-input"
+                                                    placeholder="Number of units"
+                                                />
+                                                <small style={{ color: '#666', fontSize: '12px' }}>
+                                                    Orders of 10+ units get priority response
+                                                </small>
+                                            </div>
+                                        </div>
+
                                         <div className="form-group">
                                             <label htmlFor="message">Message *</label>
                                             <textarea
@@ -240,26 +323,70 @@ const Contact = () => {
                                             {errors.message && <span className="error-message">{errors.message}</span>}
                                         </div>
 
-                                        <button type="submit" className="btn btn-primary btn-lg" disabled={isLoading}>
+                                        <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={isLoading}>
                                             {isLoading ? 'Sending...' : 'Send Message'}
                                         </button>
                                     </form>
                                 </div>
 
-                                {/* Business Hours */}
-                                <div className="business-hours-container">
-                                    <h2>Business Hours</h2>
-                                    <div className="business-hours">
-                                        {businessHours.map((item, index) => (
-                                            <div key={index} className="hour-item">
-                                                <span className="day">{item.day}</span>
-                                                <span className="time">{item.time}</span>
-                                            </div>
-                                        ))}
+                                {/* Map & Facility Section */}
+                                <div className="map-facility-container">
+                                    {/* Google Maps */}
+                                    <div className="map-container">
+                                        <h2>Find Us</h2>
+                                        <div className="map-wrapper">
+                                            <iframe
+                                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62641.5!2d77.7174!3d11.3410!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba96f46762f4671%3A0xd97da6e3d9e8d397!2sErode%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1234567890"
+                                                width="100%"
+                                                height="300"
+                                                style={{ border: 0, borderRadius: 'var(--radius-lg)' }}
+                                                allowFullScreen=""
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                                title="Sekar Industries - Erode, Tamil Nadu"
+                                            ></iframe>
+                                        </div>
                                     </div>
 
-                                    <div className="contact-note">
-                                        <p>📧 <strong>Quick Response:</strong> We typically respond to all inquiries within 24 business hours.</p>
+                                    {/* Business Hours */}
+                                    <div className="business-hours-card">
+                                        <h3>Business Hours</h3>
+                                        <div className="business-hours">
+                                            {businessHours.map((item, index) => (
+                                                <div key={index} className="hour-item">
+                                                    <span className="day">{item.day}</span>
+                                                    <span className="time">{item.time}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Trust Section */}
+                                    <div className="facility-showcase">
+                                        <h3>Meet Our Support Team</h3>
+                                        <div className="facility-image">
+                                            <div className="facility-placeholder">
+                                                <div className="facility-icon">
+                                                    <Icons.Business />
+                                                </div>
+                                                <p>Sekar Industries Facility</p>
+                                                <small>Serving you since 1995</small>
+                                            </div>
+                                        </div>
+                                        <div className="trust-badges">
+                                            <div className="trust-item">
+                                                <span className="trust-icon">✓</span>
+                                                <span>29+ Years Experience</span>
+                                            </div>
+                                            <div className="trust-item">
+                                                <span className="trust-icon">✓</span>
+                                                <span>10,000+ Happy Customers</span>
+                                            </div>
+                                            <div className="trust-item">
+                                                <span className="trust-icon">✓</span>
+                                                <span>24hr Response Time</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

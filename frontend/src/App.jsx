@@ -26,6 +26,7 @@ import './styles/variables.css';
 import './styles/global.css';
 import './styles/public.css';
 import './styles/contact.css';
+import './styles/reviews.css';
 import './styles/admin.css';
 import './styles/responsive.css';
 import './styles/dashboard.css';

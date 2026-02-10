@@ -16,6 +16,8 @@ export const mockProducts = [
         stock: 45,
         lowStockThreshold: 10,
         isFeatured: true,
+        rating: 4.5,
+        reviewCount: 128,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197215/VZ/MO/BM/113411322/wrwerwrwerwerwer-500x500.jpeg'
     },
     {
@@ -29,6 +31,8 @@ export const mockProducts = [
         stock: 38,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.3,
+        reviewCount: 95,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196991/TS/WN/JK/113411322/rewrwrwerwer-500x500.jpeg'
     },
     {
@@ -42,6 +46,8 @@ export const mockProducts = [
         stock: 28,
         lowStockThreshold: 8,
         isFeatured: true,
+        rating: 4.7,
+        reviewCount: 156,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196829/CZ/CK/ZH/113411322/ewrwerewrwerwerw-500x500.jpeg'
     },
     {
@@ -55,6 +61,8 @@ export const mockProducts = [
         stock: 35,
         lowStockThreshold: 8,
         isFeatured: false,
+        rating: 4.4,
+        reviewCount: 87,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196666/LJ/GO/XI/113411322/wwerwerwrw-500x500.jpeg'
     },
     {
@@ -68,6 +76,8 @@ export const mockProducts = [
         stock: 32,
         lowStockThreshold: 8,
         isFeatured: false,
+        rating: 4.2,
+        reviewCount: 73,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196489/UE/PD/TP/113411322/432343223423-500x500.jpeg'
     },
     {
@@ -81,6 +91,9 @@ export const mockProducts = [
         stock: 25,
         lowStockThreshold: 8,
         isFeatured: false,
+        isNew: true,
+        rating: 4.6,
+        reviewCount: 112,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196337/JL/YY/MC/113411322/werwerwerwerw-500x500.jpeg'
     },
     {
@@ -94,6 +107,8 @@ export const mockProducts = [
         stock: 40,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.1,
+        reviewCount: 64,
         image: 'https://5.imimg.com/data5/IOS/Default/2024/11/466982590/FZ/IY/FT/113411322/product-jpeg-500x500.png'
     },
     {
@@ -107,6 +122,8 @@ export const mockProducts = [
         stock: 42,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.0,
+        reviewCount: 52,
         image: 'https://5.imimg.com/data5/ANDROID/Default/2020/9/CC/RC/CR/113411322/product-jpeg-500x500.jpg'
     },
     {
@@ -120,6 +137,8 @@ export const mockProducts = [
         stock: 30,
         lowStockThreshold: 8,
         isFeatured: false,
+        rating: 4.3,
+        reviewCount: 78,
         image: 'https://5.imimg.com/data5/NSDMERP/Default/2022/12/IR/QT/QC/113411322/nylon-standing-cot-1670494972060-500x500.jpg'
     },
     {
@@ -133,6 +152,9 @@ export const mockProducts = [
         stock: 38,
         lowStockThreshold: 10,
         isFeatured: false,
+        isNew: true,
+        rating: 4.2,
+        reviewCount: 61,
         image: 'https://5.imimg.com/data5/ANDROID/Default/2025/3/493894656/JX/BI/TQ/113411322/product-jpeg-1000x1000.jpeg'
     },
     {
@@ -146,6 +168,8 @@ export const mockProducts = [
         stock: 20,
         lowStockThreshold: 6,
         isFeatured: true,
+        rating: 4.6,
+        reviewCount: 143,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456196212/BX/OF/BR/113411322/werrwerwe-1000x1000.jpeg'
     },
 
@@ -161,6 +185,8 @@ export const mockProducts = [
         stock: 55,
         lowStockThreshold: 12,
         isFeatured: true,
+        rating: 4.5,
+        reviewCount: 203,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197410/XC/WN/II/113411322/wwerwerwerwer-500x500.jpeg'
     },
     {
@@ -174,6 +200,8 @@ export const mockProducts = [
         stock: 48,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.2,
+        reviewCount: 145,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197330/NO/IU/CT/113411322/rweewrwerwer-500x500.jpeg'
     },
     {
@@ -184,6 +212,8 @@ export const mockProducts = [
         description: 'Standard S type visitor chair with durable steel frame and comfortable seating.',
         price: 1750,
         unit: 'piece',
+        rating: 4.4,
+        reviewCount: 178,
         stock: 52,
         lowStockThreshold: 10,
         isFeatured: true,
@@ -200,6 +230,8 @@ export const mockProducts = [
         stock: 35,
         lowStockThreshold: 8,
         isFeatured: true,
+        rating: 4.6,
+        reviewCount: 187,
         image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561697756/ZD/QC/AA/113411322/s-type-rolling-chair-for-office-1000x1000.jpeg'
     },
 
@@ -215,6 +247,8 @@ export const mockProducts = [
         stock: 25,
         lowStockThreshold: 6,
         isFeatured: false,
+        rating: 4.7,
+        reviewCount: 92,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197647/JB/UA/JP/113411322/wwererwerwerwrw-500x500.jpeg'
     },
     {
@@ -228,6 +262,8 @@ export const mockProducts = [
         stock: 40,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.3,
+        reviewCount: 156,
         image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561699710/KE/EF/KA/113411322/s-type-visitor-chair-500x500.jpeg'
     },
     {
@@ -241,6 +277,8 @@ export const mockProducts = [
         stock: 18,
         lowStockThreshold: 5,
         isFeatured: true,
+        rating: 4.8,
+        reviewCount: 234,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456198102/KV/CR/YR/113411322/wrwerwererewrwr-500x500.jpeg'
     },
     {
@@ -254,6 +292,8 @@ export const mockProducts = [
         stock: 12,
         lowStockThreshold: 4,
         isFeatured: true,
+        rating: 4.9,
+        reviewCount: 276,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456197851/TM/AP/RC/113411322/ewrwerwerwerwrwrw-500x500.jpeg'
     },
 
@@ -269,6 +309,8 @@ export const mockProducts = [
         stock: 8,
         lowStockThreshold: 3,
         isFeatured: true,
+        rating: 4.9,
+        reviewCount: 312,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456198600/ZW/IS/YE/113411322/etrtertertertete-500x500.jpeg'
     },
     {
@@ -282,6 +324,8 @@ export const mockProducts = [
         stock: 22,
         lowStockThreshold: 6,
         isFeatured: false,
+        rating: 4.6,
+        reviewCount: 189,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456346650/BC/MD/DR/113411322/rerwerwerwer-500x500.jpeg'
     },
     {
@@ -295,6 +339,8 @@ export const mockProducts = [
         stock: 45,
         lowStockThreshold: 10,
         isFeatured: false,
+        rating: 4.4,
+        reviewCount: 167,
         image: 'https://5.imimg.com/data5/SELLER/Default/2025/11/561697923/YX/EH/RB/113411322/office-s-type-chair-500x500.jpeg'
     },
     {
@@ -308,6 +354,8 @@ export const mockProducts = [
         stock: 12,
         lowStockThreshold: 4,
         isFeatured: true,
+        rating: 4.7,
+        reviewCount: 198,
         image: 'https://5.imimg.com/data5/SELLER/Default/2024/10/456345680/AB/TN/NS/113411322/rectangular-teak-wood-table-500x500.jpg'
     }
 ];

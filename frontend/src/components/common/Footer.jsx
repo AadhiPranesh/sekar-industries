@@ -50,14 +50,25 @@ const Footer = () => {
                         <h4>Contact Us</h4>
                         <div className="footer-links">
                             <span className="footer-link contact-footer-item">
-                                <Icons.Location /> Erode, India
+                                <Icons.Location /> Perundurai Road, Erode
                             </span>
-                            <span className="footer-link contact-footer-item">
+                            <a href="tel:+919876543210" className="footer-link contact-footer-item">
                                 <Icons.Phone /> +91 98765 43210
-                            </span>
-                            <span className="footer-link contact-footer-item">
+                            </a>
+                            <a href="mailto:info@sekarindustries.com" className="footer-link contact-footer-item">
                                 <Icons.Email /> info@sekarindustries.com
-                            </span>
+                            </a>
+                        </div>
+                        <div className="social-links footer-social">
+                            <a href="#" className="social-btn" aria-label="Facebook" title="Follow us on Facebook">
+                                <Icons.Facebook />
+                            </a>
+                            <a href="#" className="social-btn" aria-label="Instagram" title="Follow us on Instagram">
+                                <Icons.Instagram />
+                            </a>
+                            <a href="https://wa.me/919876543210" className="social-btn" aria-label="WhatsApp" title="Chat on WhatsApp">
+                                <Icons.WhatsApp />
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -66,17 +77,6 @@ const Footer = () => {
                     <p className="footer-copyright">
                         © {currentYear} Sekar Industries. All rights reserved.
                     </p>
-                    <div className="social-links">
-                        <a href="#" className="social-btn" aria-label="Facebook">
-                            <Icons.Facebook />
-                        </a>
-                        <a href="#" className="social-btn" aria-label="Instagram">
-                            <Icons.Instagram />
-                        </a>
-                        <a href="#" className="social-btn" aria-label="WhatsApp">
-                            <Icons.WhatsApp />
-                        </a>
-                    </div>
                 </div>
             </div>
         </footer>

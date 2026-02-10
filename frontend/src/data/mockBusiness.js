@@ -33,9 +33,9 @@ export const mockBusinessInfo = {
     },
     stats: {
         yearsInBusiness: 29,
-        productsAvailable: 500,
+        productsAvailable: 23,
         happyCustomers: 10000,
-        categories: 8
+        categories:4
     },
     features: [
         {
