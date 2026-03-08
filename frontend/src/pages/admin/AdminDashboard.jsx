@@ -22,6 +22,7 @@ const AdminDashboard = () => {
         { id: 'prod-014', name: 'Oval Top Dining Set (6 Seater)', stock: 5, category: 'Dining Sets' }
     ]);
 
+
     const formatCurrency = (amount) => {
         return `₹${amount.toLocaleString('en-IN')}`;
     };

@@ -68,6 +68,24 @@
     align-items: center;
 }
 
+.admin-hamburger-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #1f2a22;
+    color: #f5f8f6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-hamburger-btn:hover {
+    background: #2d473e;
+    transform: translateY(0);
+}
+
 .admin-brand {
     display: flex;
     align-items: center;
@@ -134,6 +152,115 @@
     padding: 0 2rem;
     display: flex;
     gap: 0.5rem;
+}
+
+/* ============================================
+   HAMBURGER SIDEBAR NAVIGATION
+   ============================================ */
+.admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 998;
+}
+
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 320px;
+    max-width: 86vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #242d3c 0%, #2b3343 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar.open {
+    transform: translateX(0);
+}
+
+.admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f7faf8;
+}
+
+.admin-sidebar-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f2f5f3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(0);
+}
+
+.admin-sidebar-nav {
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: #c8d2dc;
+    text-decoration: none;
+    padding: 0.85rem 0.8rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-sidebar-link:hover {
+    background: rgba(123, 107, 227, 0.16);
+    color: #f4f7f9;
+}
+
+.admin-sidebar-link.active {
+    background: rgba(123, 107, 227, 0.28);
+    color: #ffffff;
+}
+
+.admin-sidebar-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    color: #aabed7;
+    flex-shrink: 0;
+}
+
+.admin-sidebar-link.active .admin-sidebar-icon {
+    background: #6f57c8;
+    color: #fff;
 }
 
 .admin-nav-link {
@@ -1155,6 +1282,173 @@
 .graph-empty p {
     font-size: 0.875rem;
     color: var(--admin-text-light);
+}
+
+/* ============================================
+   NOTIFICATIONS PANEL
+   ============================================ */
+.admin-notification-panel {
+    padding: 1.5rem;
+}
+
+.notification-count-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(45, 71, 62, 0.1);
+    color: var(--admin-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.admin-notification-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.admin-notification-list {
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: var(--admin-surface);
+    overflow: hidden;
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.admin-notification-item {
+    display: flex;
+    gap: 0.85rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--admin-border);
+    transition: background 0.2s ease;
+}
+
+.admin-notification-item:last-child {
+    border-bottom: none;
+}
+
+.admin-notification-item:hover {
+    background: #fbfbfa;
+}
+
+.admin-notification-item.is-unread {
+    background: #f8fbff;
+}
+
+.notification-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    width: 100%;
+}
+
+.notification-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+
+.notification-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--admin-text);
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: var(--admin-text-light);
+    white-space: nowrap;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: #465a53;
+}
+
+.notification-meta-row {
+    margin-top: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.notification-type-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.notification-category {
+    font-size: 0.8rem;
+    color: var(--admin-text-light);
+    font-weight: 500;
+}
+
+.notification-critical .notification-dot {
+    background: #e53935;
+}
+
+.notification-warning .notification-dot {
+    background: #fb8c00;
+}
+
+.notification-info .notification-dot {
+    background: #1e88e5;
+}
+
+.notification-suggestion .notification-dot {
+    background: #43a047;
+}
+
+.type-critical {
+    background: #fde2e2;
+    color: #b71c1c;
+}
+
+.type-warning {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.type-info {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+
+.type-suggestion {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+
+@media (max-width: 768px) {
+    .notification-top-row {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .notification-time {
+        white-space: normal;
+    }
 }
 
 .sales-graph-tooltip {
