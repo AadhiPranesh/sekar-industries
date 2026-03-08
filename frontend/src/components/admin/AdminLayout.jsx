@@ -2,12 +2,11 @@
  * Admin Layout Component
  * Persistent navigation and layout for shop owner's admin panel
  */
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 
 const AdminLayout = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const location = useLocation();
+    const [isMenuOpen, setIsMenuOpen] = useState(true);
 
     const currentDate = new Date().toLocaleDateString('en-IN', {
         weekday: 'long',
@@ -15,10 +14,6 @@ const AdminLayout = () => {
         month: 'long',
         day: 'numeric'
     });
-
-    useEffect(() => {
-        setIsMenuOpen(false);
-    }, [location.pathname]);
 
     const navItems = [
         {
@@ -81,7 +76,7 @@ const AdminLayout = () => {
     ];
 
     return (
-        <div className="admin-container">
+        <div className={`admin-container ${isMenuOpen ? 'sidebar-open' : ''}`}>
             {/* Admin Header */}
             <header className="admin-header">
                 <div className="admin-header-content">
@@ -89,7 +84,7 @@ const AdminLayout = () => {
                         <button
                             type="button"
                             className="admin-hamburger-btn"
-                            onClick={() => setIsMenuOpen(true)}
+                            onClick={() => setIsMenuOpen((prev) => !prev)}
                             aria-label="Open admin menu"
                         >
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -107,9 +102,6 @@ const AdminLayout = () => {
                     </a>
                 </div>
             </header>
-
-            {/* Side Menu Overlay */}
-            {isMenuOpen && <div className="admin-sidebar-overlay" onClick={() => setIsMenuOpen(false)} aria-hidden="true" />}
 
             {/* Hamburger Navigation Drawer */}
             <aside className={`admin-sidebar ${isMenuOpen ? 'open' : ''}`}>
