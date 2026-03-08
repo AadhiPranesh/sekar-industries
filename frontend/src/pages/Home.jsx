@@ -10,6 +10,7 @@ import HeroSection from '../components/public/HeroSection';
 import AboutSection from '../components/public/AboutSection';
 import FeaturedProducts from '../components/public/FeaturedProducts';
 import CategoriesShowcase from '../components/public/CategoriesShowcase';
+import ComboOffers from '../components/public/ComboOffers';
 import ContactSection from '../components/public/ContactSection';
 import { getBusinessInfo } from '../services/businessService';
 import { getFeaturedProducts } from '../services/productService';
@@ -54,6 +55,7 @@ const Home = () => {
             <main>
                 <HeroSection businessInfo={businessInfo} />
                 <AboutSection businessInfo={businessInfo} />
+                <ComboOffers />
                 <FeaturedProducts products={featuredProducts} loading={loading} />
                 <CategoriesShowcase />
                 <ContactSection businessInfo={businessInfo} />
