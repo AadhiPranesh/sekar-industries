@@ -18,6 +18,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminSalesEntry from './pages/admin/AdminSalesEntry';
 import AdminProductHealth from './pages/admin/AdminProductHealth';
 import AdminPrediction from './pages/admin/AdminPrediction';
+import AdminNotifications from './pages/admin/AdminNotifications';
 // Components
 import ScrollToTop from './components/common/ScrollToTop';
 import WhatsAppButton from './components/common/WhatsAppButton';
@@ -56,6 +57,7 @@ function App() {
               <Route path="sales-entry" element={<AdminSalesEntry />} />
               <Route path="product-health" element={<AdminProductHealth />} />
               <Route path="prediction" element={<AdminPrediction />} />
+              <Route path="notifications" element={<AdminNotifications />} />
             </Route>
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
