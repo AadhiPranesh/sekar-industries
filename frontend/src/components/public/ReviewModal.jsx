@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import BillVerification from './BillVerification';
 import ReviewForm from './ReviewForm';
-
 /**
- * ReviewModal - Orchestrates the review submission flow
- * Step 1: Verify bill number
- * Step 2: Write review
- * Step 3: Success confirmation
+ *ReviewModal - Orchestrates the review submission flow
+ *Step 1: Verify bill number
+ *Step 2: Write review
+ *Step 3: Success confirmation
  */
 const ReviewModal = ({ isOpen, onClose, productId, onReviewSubmitted }) => {
   const [step, setStep] = useState(1); // 1: Verify, 2: Review Form, 3: Success
   const [verifiedProduct, setVerifiedProduct] = useState(null);
   const [submittedReview, setSubmittedReview] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
+
   // Check if user is logged in
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -156,5 +155,4 @@ const ReviewModal = ({ isOpen, onClose, productId, onReviewSubmitted }) => {
     </div>
   );
 };
-
 export default ReviewModal;
