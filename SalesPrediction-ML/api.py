@@ -22,7 +22,6 @@ encoder = None
 df = None
 
 def generate_mock_data(product_id: str):
-    """Generates fake data when Excel is missing the product."""
     print(f"Generating MOCK DATA for {product_id}")
     
     base_price = 2500
@@ -159,3 +158,43 @@ def get_dashboard_data(product_id: str):
                 print(f"Error processing real data: {e}. Falling back to mock.")
 
     return generate_mock_data(product_id)
+
+@app.get("/combo")
+def get_combo_offers():
+    """
+    Get combo offers for the home page
+    """
+    combo_offers = [
+        {
+            "id": "COMBO001",
+            "name": "Living Room Bundle",
+            "description": "Sofa + Center Table + Lamp",
+            "items": ["SO-FL-PR-01", "TB-FL-PR-02", "LP-FL-PR-03"],
+            "originalPrice": 45000,
+            "discountedPrice": 35000,
+            "discount": 22,
+            "image": "/images/combo-living-room.jpg"
+        },
+        {
+            "id": "COMBO002",
+            "name": "Bedroom Bundle",
+            "description": "Bed + Wardrobe + Side Table",
+            "items": ["BD-FL-PR-01", "WK-FL-PR-02", "ST-FL-PR-03"],
+            "originalPrice": 55000,
+            "discountedPrice": 42000,
+            "discount": 23,
+            "image": "/images/combo-bedroom.jpg"
+        },
+        {
+            "id": "COMBO003",
+            "name": "Dining Set Bundle",
+            "description": "Dining Table + 4 Chairs + Cabinet",
+            "items": ["DT-FL-PR-01", "CH-FL-PR-02", "CB-FL-PR-03"],
+            "originalPrice": 35000,
+            "discountedPrice": 27000,
+            "discount": 22,
+            "image": "/images/combo-dining.jpg"
+        }
+    ]
+    
+    return combo_offers

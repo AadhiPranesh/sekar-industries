@@ -50,7 +50,7 @@ const AdminPrediction = () => {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`http://localhost:8000/dashboard/${selectedProduct}`);
+                const res = await fetch(`http://localhost:8001/dashboard/${selectedProduct}`);
                 
                 if (!res.ok) {
                     throw new Error(`Server Error: ${res.status}`);
