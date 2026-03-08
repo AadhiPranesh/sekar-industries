@@ -106,7 +106,7 @@ const AdminLayout = () => {
             {/* Hamburger Navigation Drawer */}
             <aside className={`admin-sidebar ${isMenuOpen ? 'open' : ''}`}>
                 <div className="admin-sidebar-header">
-                    <h3>Admin Menu</h3>
+                    <h3>Owner Panel</h3>
                     <button
                         type="button"
                         className="admin-sidebar-close"

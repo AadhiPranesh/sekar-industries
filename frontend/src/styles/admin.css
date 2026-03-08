@@ -1032,189 +1032,351 @@
 }
 
 /* ============================================
-   PRODUCT HEALTH
+   PRODUCT HEALTH — REDESIGNED
    ============================================ */
-.admin-health-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
-}
 
-.health-summary-card {
-    background: var(--admin-surface);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--admin-border);
+/* Page header Live badge */
+.ph-live-badge {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+.ph-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: ph-pulse 1.8s infinite;
+}
+@keyframes ph-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(1.3); }
 }
 
-.card-hot {
-    border-left: 4px solid var(--admin-danger);
+/* ── Summary strip (5 status tiles) ── */
+.ph-summary-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
+}
+@media (max-width: 900px) {
+    .ph-summary-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 580px) {
+    .ph-summary-strip { grid-template-columns: repeat(2, 1fr); }
 }
 
-.card-attention {
-    border-left: 4px solid var(--admin-warning);
+.ph-summary-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    background: var(--admin-surface);
+    border: 2px solid var(--admin-border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
 }
-
-.summary-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
+.ph-summary-tile:hover {
+    border-color: var(--tile-color, #6b7280);
+    background: var(--tile-bg, #f9fafb);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.ph-tile-active {
+    border-color: var(--tile-color, #6b7280) !important;
+    background: var(--tile-bg, #f9fafb) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tile-color, #6b7280) 20%, transparent);
+}
+.ph-tile-emoji {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--tile-bg, #f9fafb);
+    border: 1px solid color-mix(in srgb, var(--tile-color, #6b7280) 20%, transparent);
 }
-
-.card-hot .summary-icon {
-    background: #fee2e2;
-    color: var(--admin-danger);
-}
-
-.card-attention .summary-icon {
-    background: #fef3c7;
-    color: var(--admin-warning);
-}
-
-.summary-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--admin-text);
+.ph-tile-count {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--tile-color, var(--admin-text));
     line-height: 1;
 }
-
-.summary-label {
-    font-size: 0.875rem;
-    color: var(--admin-text-light);
-    margin-top: 0.25rem;
-}
-
-.health-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
-}
-
-.health-card {
-    background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.health-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.health-card-title {
-    font-size: 1rem;
+.ph-tile-label {
+    font-size: 0.7rem;
     font-weight: 600;
-    color: #212529;
-    margin: 0 0 0.25rem 0;
-}
-
-.health-card-category {
-    font-size: 0.8125rem;
-    color: #6c757d;
-    margin: 0;
-}
-
-.health-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.health-badge svg {
-    width: 16px;
-    height: 16px;
-}
-
-.health-hot {
-    background: #ffe5e5;
-    color: #dc3545;
-}
-
-.health-growing {
-    background: #d1fae5;
-    color: var(--admin-success);
-}
-
-.health-steady {
-    background: #dbeafe;
-    color: var(--admin-info);
-}
-
-.health-slow {
-    background: #fef3c7;
-    color: var(--admin-warning);
-}
-
-.health-cold {
-    background: var(--admin-bg);
-    color: var(--admin-text-light);
-}
-
-.health-card-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    padding: 1rem 0;
-    border-top: 1px solid var(--admin-border);
-    border-bottom: 1px solid var(--admin-border);
-}
-
-.health-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.health-stat-label {
-    font-size: 0.75rem;
     color: var(--admin-text-light);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.health-stat-value {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--admin-text);
+/* ── Filter tabs ── */
+.ph-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.ph-filter-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 20px;
+    background: var(--admin-surface);
+    color: var(--admin-text-light);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.ph-filter-tab:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+}
+.ph-tab-active {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: #fff;
+}
+.ph-tab-count {
+    background: rgba(255,255,255,0.25);
+    color: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+.ph-filter-tab:not(.ph-tab-active) .ph-tab-count {
+    background: var(--admin-bg);
+    color: var(--admin-text-light);
 }
 
-.health-card-recommendation {
+/* ── Cards grid ── */
+.ph-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.125rem;
+}
+
+/* ── Individual card ── */
+.ph-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-top: 3px solid var(--card-accent, var(--admin-border));
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.ph-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+}
+
+/* Rank + badge row */
+.ph-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ph-rank {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--admin-text-light);
+    background: var(--admin-bg);
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+}
+.ph-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.ph-status-badge svg { flex-shrink: 0; }
+
+/* Product name block */
+.ph-card-name h4 {
+    margin: 0 0 0.2rem 0;
+    font-size: 0.9625rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    line-height: 1.3;
+}
+.ph-product-id {
+    font-size: 0.75rem;
+    color: var(--admin-text-light);
+    font-family: monospace;
+}
+
+/* Score bar */
+.ph-score-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.ph-score-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--admin-text-light);
+}
+.ph-score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+.ph-score-bar-track {
+    flex: 1;
+    height: 7px;
+    background: var(--admin-bg);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.ph-score-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+.ph-score-number {
+    font-size: 0.9rem;
+    font-weight: 800;
+    min-width: 32px;
+    text-align: right;
+}
+
+/* Stats row */
+.ph-card-stats {
+    display: flex;
+    align-items: center;
+    background: var(--admin-bg);
+    border-radius: 10px;
+    padding: 0.75rem 0.5rem;
+}
+.ph-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+.ph-stat-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--admin-border);
+}
+.ph-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--admin-border);
+}
+.ph-stat-val {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    line-height: 1;
+}
+.ph-stat-lbl {
+    font-size: 0.68rem;
+    color: var(--admin-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* Recommendation */
+.ph-recommendation {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
-    padding: 0.75rem;
-    background: var(--admin-bg);
-    border-radius: 8px;
-    font-size: 0.875rem;
+    padding: 0.625rem 0.75rem;
+    border-left: 3px solid;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.8125rem;
     color: var(--admin-text);
+    line-height: 1.45;
 }
 
-.health-card-recommendation svg {
-    width: 16px;
-    height: 16px;
-    color: var(--admin-text-light);
-    flex-shrink: 0;
-    margin-top: 0.125rem;
+/* Days of Stock Remaining Indicator */
+.ph-stock-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.875rem;
+    background: var(--admin-bg);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    border: 1px solid var(--admin-border);
 }
+.ph-stock-indicator svg {
+    flex-shrink: 0;
+}
+
+/* Error box */
+.ph-error-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    color: #b91c1c;
+    font-size: 0.9rem;
+}
+.ph-error-icon { display: flex; align-items: flex-start; flex-shrink: 0; }
+.ph-error-box p { margin: 0.25rem 0 0; font-size: 0.8125rem; opacity: 0.8; }
+
+/* Empty state */
+.ph-empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--admin-text-light);
+    font-size: 0.95rem;
+}
+
+/* Skeleton loading */
+.ph-skeleton-card { pointer-events: none; }
+.ph-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: ph-shimmer 1.4s infinite;
+    border-radius: 6px;
+}
+@keyframes ph-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.ph-sk-badge  { height: 22px; width: 100px; margin-left: auto; }
+.ph-sk-title  { height: 18px; width: 75%; margin-top: 0.25rem; }
+.ph-sk-sub    { height: 12px; width: 40%; }
+.ph-sk-bar    { height: 7px; width: 100%; margin: 0.5rem 0; border-radius: 99px; }
+.ph-sk-stat   { height: 38px; flex: 1; }
 
 /* ============================================
    SALES TREND GRAPH
