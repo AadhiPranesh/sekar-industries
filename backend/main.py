@@ -51,6 +51,66 @@ def demand_prediction():
     return result.to_dict(orient="records")
 
 
+@app.get("/api/product-health")
+def product_health():
+    dynamic = pd.read_csv(DATA_DIR / "furniture_dynamic_dataset_365days_forward.csv")
+    static = pd.read_csv(DATA_DIR / "static_dataset.csv")
+
+    # Safe stock turnover per row
+    dynamic["stock_turnover"] = dynamic["sales_qty"] / dynamic["stock_start"].replace(0, 1)
+
+    # Aggregate per product over all days
+    agg = dynamic.groupby("product_id").agg(
+        total_sales=("sales_qty", "sum"),
+        avg_profit=("profit", "mean"),
+        avg_turnover=("stock_turnover", "mean"),
+        total_revenue=("revenue", "sum"),
+        avg_stock_end=("stock_end", "mean"),
+    ).reset_index()
+
+    # Merge with static data for product names
+    merged = pd.merge(agg, static[["product_id", "product_name"]], on="product_id", how="left")
+
+    # Min-max normalization helpers
+    def minmax(series):
+        rng = series.max() - series.min()
+        return (series - series.min()) / rng * 100 if rng > 0 else pd.Series([50.0] * len(series), index=series.index)
+
+    merged["sales_score"]    = minmax(merged["total_sales"])
+    merged["profit_score"]   = minmax(merged["avg_profit"])
+    merged["turnover_score"] = minmax(merged["avg_turnover"])
+
+    # Weighted health score
+    merged["health_score"] = (
+        0.4 * merged["sales_score"] +
+        0.3 * merged["profit_score"] +
+        0.3 * merged["turnover_score"]
+    ).round(1)
+
+    # Status category
+    def get_status(score):
+        if score >= 80:   return "Selling Fast"
+        elif score >= 60: return "Growing"
+        elif score >= 40: return "Steady Sales"
+        elif score >= 20: return "Slow Moving"
+        else:             return "Not Moving"
+
+    merged["dashboard_status"] = merged["health_score"].apply(get_status)
+
+    result = merged[[
+        "product_id", "product_name",
+        "total_sales", "avg_stock_end",
+        "health_score", "dashboard_status"
+    ]].rename(columns={
+        "total_sales": "sales_qty",
+        "avg_stock_end": "stock_end"
+    })
+
+    result["stock_end"] = result["stock_end"].round(1)
+
+    return result.sort_values("health_score", ascending=False).to_dict(orient="records")
+
+
 @app.get("/combo")
 def combo_offer():
     dynamic = pd.read_csv(DATA_DIR / "furniture_dynamic_dataset_365days_forward.csv")
