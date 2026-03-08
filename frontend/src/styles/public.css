@@ -3468,45 +3468,49 @@
 }
 
 .savings-badge {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    background: linear-gradient(135deg, #D4A574 0%, #C17767 100%);
+    background: #2D473E;
     color: white;
-    padding: 12px 14px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(212,165,116,0.2);
-    min-width: 90px;
+    padding: 10px 28px 10px 14px;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+    min-width: 108px;
     font-weight: 800;
+    filter: drop-shadow(0 4px 10px rgba(45,71,62,0.35));
 }
 
 .savings-label {
-    font-size: 0.72rem;
-    font-weight: 800;
+    font-size: 0.6rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.92;
+    letter-spacing: 2px;
+    opacity: 0.75;
+    margin-bottom: 1px;
 }
 
 .savings-amount {
-    font-size: 0.95rem;
-    opacity: 1;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
 }
 
 .limited-badge {
-    display: inline-block;
-    background: #2D473E;
-    color: #E5E3DF;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    color: #2D473E;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.65rem;
     font-weight: 700;
-    border: 1px solid #3d5d52;
+    border: 1.5px solid #2D473E;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 3px 8px rgba(45,71,62,0.12);
+    letter-spacing: 1px;
     white-space: nowrap;
 }
 
@@ -3614,7 +3618,7 @@
 
 .combo-product-price {
     font-size: 15px;
-    color: #D4A574;
+    color: #2D473E;
     font-weight: 700;
 }
 
@@ -3624,20 +3628,21 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #D4A574 0%, #C17767 100%);
+    background: linear-gradient(135deg, #2D473E 0%, #3d5d52 100%);
     border-radius: 50%;
     color: white;
     flex-shrink: 0;
-    margin: 4px 0;
+    align-self: center;
+    margin: 4px auto;
     transition: all 0.35s ease;
     font-weight: 700;
     font-size: 18px;
-    box-shadow: 0 3px 10px rgba(212,165,116,0.12);
+    box-shadow: 0 3px 10px rgba(45,71,62,0.15);
 }
 
 .plus-icon-wrap:hover {
-    background: linear-gradient(135deg, #C17767 0%, #A85A4C 100%);
-    box-shadow: 0 5px 14px rgba(212,165,116,0.2);
+    background: linear-gradient(135deg, #3d5d52 0%, #2D473E 100%);
+    box-shadow: 0 5px 14px rgba(45,71,62,0.25);
     transform: scale(1.12);
 }
 
@@ -3659,7 +3664,7 @@
 .pulse-dot {
     width: 10px;
     height: 10px;
-    background: #D4A574;
+    background: #6B8E7F;
     border-radius: 50%;
     animation: pulse-simple 2s ease-in-out infinite;
 }
@@ -3742,7 +3747,7 @@
 .btn-combo {
     width: 100%;
     padding: 11px 14px;
-    background: linear-gradient(135deg, #D4A574 0%, #C17767 100%);
+    background: linear-gradient(135deg, #2D473E 0%, #3d5d52 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -3750,7 +3755,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.35s ease;
-    box-shadow: 0 4px 12px rgba(212,165,116,0.15);
+    box-shadow: 0 4px 12px rgba(45,71,62,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3761,8 +3766,8 @@
 
 .btn-combo:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(212,165,116,0.2);
-    background: linear-gradient(135deg, #C17767 0%, #D4A574 100%);
+    box-shadow: 0 8px 18px rgba(45,71,62,0.3);
+    background: linear-gradient(135deg, #3d5d52 0%, #2D473E 100%);
 }
 
 .btn-combo:active {
@@ -3904,7 +3909,7 @@
 .btn-combo {
     flex: 1;
     padding: 12px var(--space-6);
-    background: linear-gradient(135deg, #D4A574 0%, #C17767 100%);
+    background: linear-gradient(135deg, #2D473E 0%, #3d5d52 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -3912,7 +3917,7 @@
     font-weight: 800;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(212, 165, 116, 0.3);
+    box-shadow: 0 6px 20px rgba(45, 71, 62, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3921,9 +3926,9 @@
 }
 
 .btn-combo:hover {
-    background: linear-gradient(135deg, #C17767 0%, #D4A574 100%);
+    background: linear-gradient(135deg, #3d5d52 0%, #2D473E 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(212, 165, 116, 0.4);
+    box-shadow: 0 8px 28px rgba(45, 71, 62, 0.35);
 }
 
 .btn-combo:active {
