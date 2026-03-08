@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import StarRating from '../common/StarRating';
-
 /**
  * ReviewCard - Individual review display (Amazon/Meesho style)
  * Shows user info, rating, verified badge, review text, and images
