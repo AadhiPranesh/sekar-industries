@@ -1,0 +1,24 @@
+product_id,product_name,category,brand,material,cost,base_price,selling_price
+P001,Orange Niwar Folding Bed,Bed,ComfortHome,Steel + Niwar,2200,3500,3300
+P002,Single Niwar Folding Bed,Bed,ComfortHome,Steel + Niwar,2100,3400,3200
+P003,Polished Niwar Folding Bed,Bed,ComfortHome,Steel + Niwar,2400,3700,3500
+P004,Blue Niwar Folding Bed,Bed,ComfortHome,Steel + Niwar,2250,3600,3400
+P005,Green Niwar Folding Bed,Bed,ComfortHome,Steel + Niwar,2250,3600,3350
+P006,Floral Printed Folding Bed,Bed,ComfortHome,Steel + Fabric,2300,3700,3450
+P007,Folding Bed Niwar,Bed,ComfortHome,Steel + Niwar,2200,3500,3300
+P008,Folding Cot Bed,Bed,ComfortHome,Steel,2600,4000,3800
+P009,Single Folding Steel Cot,Bed,SteelCraft,Steel,2500,3900,3700
+P010,Foldable Single Cot,Bed,SteelCraft,Steel,2400,3800,3600
+P011,Foldable Double Cot,Bed,SteelCraft,Steel,4200,6200,5900
+P012,Wire Netted S Type Chair,Chair,SeatMaster,Steel,900,1600,1500
+P013,Low Back S Type Chair,Chair,SeatMaster,Steel,850,1500,1400
+P014,S Type Chair,Chair,SeatMaster,Steel,800,1400,1300
+P015,Rolling Chair For Office,Chair,OfficePro,Steel + Cushion,2500,4200,4000
+P016,Mild Steel Movable Walker,Medical,HealthMove,Mild Steel,1500,2600,2400
+P017,S Type Visitor Chair,Chair,SeatMaster,Steel,900,1600,1500
+P018,2 Seater Teak Wood Dining Table Set,Dining,WoodCraft,Teak Wood,7000,11000,10500
+P019,Polished Teak Wood Dining Table Set,Dining,WoodCraft,Teak Wood,7500,12000,11500
+P020,Maharaja Teak Wood Dining Table Set,Dining,WoodCraft,Teak Wood,9000,15000,14500
+P021,Antique Teak Wood Chair,Chair,WoodCraft,Teak Wood,3000,5000,4800
+P022,S Type Steel Chair,Chair,SeatMaster,Steel,850,1500,1400
+P023,Rectangular Teak Wood Table,Table,WoodCraft,Teak Wood,4500,7500,7200
