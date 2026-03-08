@@ -185,7 +185,10 @@ const ComboOffers = () => {
                                     <span className="savings-label">Save</span>
                                     <span className="savings-amount">₹{savingsAmount}</span>
                                 </div>
-                                <div className="limited-badge">Limited Time</div>
+                                <div className="limited-badge">
+                                    <span className="pulse-dot"></span>
+                                    Limited Time
+                                </div>
                             </div>
                             
                             <div className="combo-header">
