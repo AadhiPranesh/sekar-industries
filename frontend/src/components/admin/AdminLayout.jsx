@@ -3,10 +3,13 @@
  * Persistent navigation and layout for shop owner's admin panel
  */
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../../auth/AdminAuthContext';
 
 const AdminLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(true);
+    const navigate = useNavigate();
+    const { logout } = useAdminAuth();
 
     const currentDate = new Date().toLocaleDateString('en-IN', {
         weekday: 'long',
@@ -75,6 +78,11 @@ const AdminLayout = () => {
         }
     ];
 
+    const handleLogout = () => {
+        logout();
+        navigate('/admin/login', { replace: true });
+    };
+
     return (
         <div className={`admin-container ${isMenuOpen ? 'sidebar-open' : ''}`}>
             {/* Admin Header */}
@@ -97,9 +105,14 @@ const AdminLayout = () => {
                             <p className="admin-date">{currentDate}</p>
                         </div>
                     </div>
-                    <a href="/" className="btn-view-shop">
-                        View Shop →
-                    </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <a href="/" className="btn-view-shop">
+                            View Shop →
+                        </a>
+                        <button type="button" className="btn-secondary" onClick={handleLogout}>
+                            Log Out
+                        </button>
+                    </div>
                 </div>
             </header>
 

@@ -8,6 +8,7 @@ import {
     Area, Line, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { productList } from '../../api/productConfig'; 
+import { adminApi } from '../../api/adminApi';
 
 const formatCurrency = (amount) => `₹${amount.toLocaleString('en-IN')}`;
 const formatPercent = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
@@ -56,13 +57,7 @@ const AdminPrediction = () => {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`http://localhost:8001/dashboard/${selectedProduct}`);
-                
-                if (!res.ok) {
-                    throw new Error(`Server Error: ${res.status}`);
-                }
-                
-                const data = await res.json();
+                const data = await adminApi.getPrediction(selectedProduct);
                 setApiData(data);
                 
             } catch (err) {
