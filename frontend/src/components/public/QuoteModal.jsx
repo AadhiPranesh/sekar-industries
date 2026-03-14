@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * QuoteModal - Request quote for specific product with quantity
@@ -17,13 +18,23 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       // Pre-fill user data if logged in
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (user.name) {
+      let user = {};
+      try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+      } catch {
+        user = {};
+      }
+
+      const hasLoginSession = Boolean(user?.id && user?.email);
+      setIsUserLoggedIn(hasLoginSession);
+
+      if (hasLoginSession && user.name) {
         setFormData(prev => ({
           ...prev,
           name: user.name,
@@ -64,28 +75,43 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isUserLoggedIn) {
+      setErrors({ form: 'Please log in to submit a product request.' });
+      return;
+    }
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const priority = parseInt(formData.quantity) >= 10 ? 'HIGH' : 'NORMAL';
+    const quantityValue = parseInt(formData.quantity, 10);
 
     try {
-      // Simulate API call
-      console.log(`Quote Request [${priority} PRIORITY]:`, {
-        product: {
-          id: product.id,
-          name: product.name,
-          price: product.price
+      const response = await fetch('http://localhost:5000/api/requests', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        customer: formData,
-        isWholesale: formData.purchaseType === 'wholesale',
-        priority
+        body: JSON.stringify({
+          customerName: formData.name,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          company: formData.company,
+          productId: product?.id || '',
+          productName: product?.name || 'Unknown Product',
+          productPrice: product?.price || '',
+          quantity: quantityValue,
+          purchaseType: formData.purchaseType,
+          message: formData.message
+        })
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.success) {
+        throw new Error(data.message || 'Failed to submit quote. Please try again.');
+      }
 
       setSuccessMessage(
-        parseInt(formData.quantity) >= 10
+        quantityValue >= 10
           ? '🎉 Bulk order request received! Our sales team will contact you within 24 hours with special pricing.'
           : '✅ Quote request sent successfully! We\'ll get back to you within 48 hours.'
       );
@@ -105,7 +131,7 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
       }, 3000);
     } catch (error) {
       console.error('Quote submission error:', error);
-      setErrors({ form: 'Failed to submit quote. Please try again.' });
+      setErrors({ form: error.message || 'Failed to submit quote. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -119,7 +145,23 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
         <button className="modal-close-btn" onClick={onClose}>×</button>
 
         <div className="modal-content" style={{ padding: '32px' }}>
-          {successMessage ? (
+          {!isUserLoggedIn ? (
+            <div style={{ textAlign: 'center', padding: '50px 20px' }}>
+              <div style={{ fontSize: '60px', marginBottom: '14px' }}>🔒</div>
+              <h2 style={{ fontSize: '28px', marginBottom: '12px', color: '#1a1a1a' }}>Login Required</h2>
+              <p style={{ fontSize: '16px', color: '#666', lineHeight: '1.6', maxWidth: '430px', margin: '0 auto 26px' }}>
+                You can browse products without login, but sending a request is available only for logged-in users.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <Link to="/login" className="btn-primary" onClick={onClose}>
+                  Login to Continue
+                </Link>
+                <Link to="/signup" className="btn-secondary" onClick={onClose}>
+                  Create Account
+                </Link>
+              </div>
+            </div>
+          ) : successMessage ? (
             <div className="quote-success" style={{ textAlign: 'center', padding: '60px 20px' }}>
               <div style={{ fontSize: '80px', marginBottom: '20px', lineHeight: 1 }}>
                 {parseInt(formData.quantity) >= 10 ? '🎉' : '✅'}

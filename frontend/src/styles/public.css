@@ -236,6 +236,21 @@
     white-space: nowrap;
 }
 
+.profile-request-count {
+    min-width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 7px;
+    background: var(--color-primary);
+    color: var(--text-inverse);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .profile-btn:hover {
     background: rgba(45, 71, 62, 0.05);
     transform: scale(1.02);
@@ -298,6 +313,13 @@
 .profile-link:hover {
     background: var(--bg-tertiary);
     color: var(--color-primary);
+}
+
+.profile-link-summary {
+    color: var(--text-secondary);
+    cursor: default;
+    pointer-events: none;
+    font-size: 12px;
 }
 
 .logout-btn {

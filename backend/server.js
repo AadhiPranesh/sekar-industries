@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import adminDashboardRoutes from './routes/adminDashboard.js'; 
+import productRequestsRoutes from './routes/productRequests.js';
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
     credentials: true
 }));
 app.use(express.json());
@@ -35,6 +36,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.use('/api/auth', authRoutes);
 app.use('/api/adminDashboard', adminDashboardRoutes); 
+app.use('/api/requests', productRequestsRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ 

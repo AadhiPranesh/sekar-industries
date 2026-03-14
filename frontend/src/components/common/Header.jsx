@@ -14,6 +14,7 @@ const Header = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [requestSummary, setRequestSummary] = useState({ total: 0, open: 0, closed: 0 });
 
     useEffect(() => {
         const handleScroll = () => {
@@ -31,6 +32,36 @@ const Header = () => {
             setUser(JSON.parse(storedUser));
         }
     }, []);
+
+    useEffect(() => {
+        const loadRequestSummary = async () => {
+            if (!user) {
+                setRequestSummary({ total: 0, open: 0, closed: 0 });
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/requests/my/summary', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    setRequestSummary({ total: 0, open: 0, closed: 0 });
+                    return;
+                }
+
+                const data = await response.json().catch(() => ({}));
+                if (data?.success && data?.summary) {
+                    setRequestSummary(data.summary);
+                }
+            } catch (error) {
+                setRequestSummary({ total: 0, open: 0, closed: 0 });
+            }
+        };
+
+        loadRequestSummary();
+    }, [user]);
 
     // Close mobile menu when clicking on a link
     const handleLinkClick = () => {
@@ -136,6 +167,7 @@ const Header = () => {
                                     title={user.name}
                                 >
                                     <span className="profile-name">{user.name}</span>
+                                    <span className="profile-request-count">{requestSummary.total}</span>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                                     </svg>
@@ -148,6 +180,12 @@ const Header = () => {
                                             <p>{user.email}</p>
                                         </div>
                                         <div className="profile-actions">
+                                            <Link to="/my-requests" className="profile-link" onClick={() => setIsProfileOpen(false)}>
+                                                My Requests ({requestSummary.total})
+                                            </Link>
+                                            <div className="profile-link profile-link-summary">
+                                                Open: {requestSummary.open} | Closed: {requestSummary.closed}
+                                            </div>
                                             <button className="profile-link logout-btn" onClick={handleLogout}>
                                                 🚪 Logout
                                             </button>
