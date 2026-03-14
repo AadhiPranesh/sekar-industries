@@ -1,7 +1,10 @@
 import express from 'express';
 import axios from 'axios';
+import verifyToken from '../middleware/verifyToken.js';
 
 const router = express.Router();
+
+router.use(verifyToken);
 
 // Route: GET /api/adminDashboard/predict/:id
 router.get('/predict/:id', async (req, res) => {
