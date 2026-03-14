@@ -1,0 +1,137 @@
+.unified-market-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    padding: 1rem;
+}
+
+.unified-market-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    color: #111827;
+    font-weight: 700;
+}
+
+.unified-market-chart-wrap {
+    width: 100%;
+    height: 360px;
+}
+
+.unified-market-legend {
+    margin-top: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.swatch-volume {
+    background: #9ca3af;
+}
+
+.swatch-revenue {
+    background: #16a34a;
+}
+
+.swatch-demand {
+    background: #374151;
+}
+
+.swatch-market {
+    background: #7c3aed;
+}
+
+.swatch-moving {
+    background: #f59e0b;
+}
+
+.swatch-range {
+    background: rgba(156, 163, 175, 0.45);
+}
+
+.unified-tooltip {
+    min-width: 180px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.15);
+}
+
+.unified-tooltip-title {
+    margin: 0 0 0.4rem 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.unified-tooltip-line {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #374151;
+}
+
+.unified-tooltip-line strong {
+    font-weight: 700;
+}
+
+.unified-tooltip-revenue {
+    color: #15803d;
+}
+
+.unified-tooltip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.dot-volume {
+    background: #9ca3af;
+}
+
+.dot-revenue {
+    background: #16a34a;
+}
+
+.dot-market {
+    background: #7c3aed;
+}
+
+.dot-range {
+    background: rgba(156, 163, 175, 0.55);
+}
+
+@media (max-width: 768px) {
+    .unified-market-chart-wrap {
+        height: 300px;
+    }
+
+    .unified-market-legend {
+        gap: 0.5rem 0.8rem;
+    }
+}
