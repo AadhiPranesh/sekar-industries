@@ -5,33 +5,39 @@
 
 import { useState, useEffect } from 'react';
 import { 
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
+    Area, Line, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { productList } from '../../api/productConfig'; 
 
 const formatCurrency = (amount) => `₹${amount.toLocaleString('en-IN')}`;
+const formatPercent = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const formatCompact = (value) => {
+    if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`;
+    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return `${value}`;
+};
 
-const CustomTooltip = ({ active, payload, label }) => {
+const UnifiedTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-        const data = payload[0].payload; 
-        const revenue = data.type === 'history' ? data.revenue : data.revenue; 
+        const data = payload[0].payload;
         
         return (
-            <div style={{ 
-                backgroundColor: '#fff', 
-                border: '1px solid #e5e7eb', 
-                padding: '12px', 
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}>
-                <p style={{ margin: '0 0 5px 0', color: '#6b7280', fontSize: '12px', fontWeight: 'bold' }}>
+            <div className="prediction-tooltip">
+                <p className="prediction-tooltip-label">
                     {label}
                 </p>
-                <p style={{ margin: '0', color: '#374151', fontSize: '14px' }}>
-                    Sales: <strong>{payload[0].value} Units</strong>
+                <p>
+                    Volume: <strong>{data.volume} Units</strong>
                 </p>
-                <p style={{ margin: '0', color: '#16a34a', fontSize: '14px', fontWeight: '500' }}>
-                    Revenue: {formatCurrency(revenue)}
+                <p className="prediction-tooltip-revenue">
+                    Revenue: {formatCurrency(data.revenue)}
+                </p>
+                <p>
+                    Market Index: {data.marketIndex.toFixed(1)}
+                </p>
+                <p className="prediction-tooltip-range">
+                    Range: {Math.round(data.forecastLow)} to {Math.round(data.forecastHigh)}
                 </p>
             </div>
         );
@@ -119,36 +125,86 @@ const AdminPrediction = () => {
     
     const statusStyle = colors[stockColor];
 
-    const getChartData = () => {
-        const historyData = currentData.history.map(h => ({
-            name: h.date,
-            sales: h.sales,
-            revenue: h.revenue,
-            type: 'history'
-        }));
-        
-        const futureData = {
-            name: currentData.prediction.date,
-            sales: currentData.prediction.predicted_quantity,
-            revenue: currentData.prediction.predicted_revenue,
-            type: 'prediction'
-        };
-        
-        return [...historyData, futureData];
+    const buildMarketData = () => {
+        const rows = [
+            ...currentData.history.map((h) => ({
+                name: h.date,
+                sales: h.sales,
+                revenue: h.revenue,
+                type: 'history'
+            })),
+            {
+                name: currentData.prediction.date,
+                sales: currentData.prediction.predicted_quantity,
+                revenue: currentData.prediction.predicted_revenue,
+                type: 'prediction'
+            }
+        ];
+
+        let previousClose = Math.max(10, currentData.currentPrice * 0.94);
+
+        const withPrice = rows.map((row, index) => {
+            const changeRatio = index === 0 ? 0 : (row.sales - rows[index - 1].sales) / Math.max(1, rows[index - 1].sales);
+            const open = previousClose;
+            const close = Math.max(10, open * (1 + changeRatio * 0.65));
+            const high = Math.max(open, close) * 1.04;
+            const low = Math.min(open, close) * 0.96;
+            previousClose = close;
+
+            return {
+                ...row,
+                priceOpen: Number(open.toFixed(2)),
+                priceClose: Number(close.toFixed(2)),
+                priceHigh: Number(high.toFixed(2)),
+                priceLow: Number(low.toFixed(2)),
+                volume: row.sales,
+                forecastLow: row.sales * (row.type === 'prediction' ? 0.88 : 0.92),
+                forecastHigh: row.sales * (row.type === 'prediction' ? 1.12 : 1.08)
+            };
+        });
+
+        const withIndicators = withPrice.map((row, idx, arr) => {
+            const start = Math.max(0, idx - 2);
+            const segment = arr.slice(start, idx + 1);
+            const movingAvg = segment.reduce((sum, item) => sum + item.sales, 0) / segment.length;
+            const marketIndex = row.priceClose * 10;
+
+            return {
+                ...row,
+                movingAvg: Number(movingAvg.toFixed(2)),
+                marketIndex: Number(marketIndex.toFixed(2)),
+                forecastBandBase: Number(row.forecastLow.toFixed(2)),
+                forecastBandRange: Number((row.forecastHigh - row.forecastLow).toFixed(2))
+            };
+        });
+
+        return withIndicators;
     };
+
+    const chartData = buildMarketData();
+    const predictionPoint = chartData[chartData.length - 1];
+    const latestHistory = chartData[chartData.length - 2] || predictionPoint;
+    const previousHistory = chartData[chartData.length - 3] || latestHistory;
+    const selectedProductName = productList.find((p) => p.id === selectedProduct)?.name || selectedProduct;
+    const growthRate = ((predictionPoint.sales - latestHistory.sales) / Math.max(1, latestHistory.sales)) * 100;
+    const momentum = growthRate >= 0 ? 'Bullish' : 'Cooling';
+    const confidenceSpread = ((predictionPoint.forecastHigh - predictionPoint.forecastLow) / Math.max(1, predictionPoint.sales)) * 100;
+    const confidenceLabel = confidenceSpread <= 20 ? 'High Confidence' : confidenceSpread <= 30 ? 'Medium Confidence' : 'Low Confidence';
+    const shortTermTrend = ((latestHistory.sales - previousHistory.sales) / Math.max(1, previousHistory.sales)) * 100;
+    const demandGap = currentData.currentStock - currentData.prediction.predicted_quantity;
+    const volatilityScore = Math.abs(shortTermTrend) + Math.abs(growthRate / 2);
 
     return (
         <div className="admin-page">
-            <div className="admin-page-header">
+            <div className="prediction-terminal-header">
                 <div>
-                    <h2 className="admin-page-title">Sales Prediction</h2>
-                    <p className="admin-page-subtitle">Real-time forecast for {selectedProduct}</p>
+                    <h2 className="admin-page-title">Sales Prediction Desk</h2>
+                    <p className="admin-page-subtitle">Live market behavior view for {selectedProductName}</p>
                 </div>
-                
-                <div className="admin-actions">
+
+                <div className="prediction-toolbar">
                     <select 
-                        className="form-input" 
-                        style={{ minWidth: '250px', cursor: 'pointer' }}
+                        className="form-input prediction-product-select"
                         value={selectedProduct}
                         onChange={(e) => setSelectedProduct(e.target.value)}
                     >
@@ -159,90 +215,98 @@ const AdminPrediction = () => {
                 </div>
             </div>
 
-            <div className="admin-stats-grid">
-                
-                {/* Card 1: Predicted Sales */}
-                <div className="admin-stat-card stat-primary">
-                    <div className="stat-icon">
-                        <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="stat-content">
-                        <p className="stat-label">Predicted Sales</p>
-                        <p className="stat-value">{currentData.prediction.predicted_quantity} Units</p>
-                        <p className="stat-detail">Forecast for {currentData.prediction.date}</p>
-                    </div>
+            <div className="prediction-kpi-strip">
+                <div className="prediction-kpi-card">
+                    <p className="prediction-kpi-label">Forecast Growth</p>
+                    <p className={`prediction-kpi-value ${growthRate >= 0 ? 'pos' : 'neg'}`}>{formatPercent(growthRate)}</p>
                 </div>
-
-                {/* Card 2: Revenue */}
-                <div className="admin-stat-card stat-success">
-                    <div className="stat-icon">
-                         <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="stat-content">
-                        <p className="stat-label">Projected Revenue</p>
-                        <p className="stat-value">{formatCurrency(currentData.prediction.predicted_revenue)}</p>
-                        <p className="stat-detail">Based on price {formatCurrency(currentData.currentPrice)}</p>
-                    </div>
+                <div className="prediction-kpi-card">
+                    <p className="prediction-kpi-label">Momentum</p>
+                    <p className={`prediction-kpi-value ${shortTermTrend >= 0 ? 'pos' : 'neg'}`}>{momentum} {formatPercent(shortTermTrend)}</p>
                 </div>
-
-                {/* Card 3: Inventory Status */}
-                <div className="admin-stat-card" style={{ borderLeft: `4px solid ${statusStyle.border}` }}>
-                    <div className="stat-icon" style={{ color: statusStyle.text, background: statusStyle.bg }}>
-                        <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d={statusStyle.icon} clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="stat-content">
-                        <p className="stat-label">Inventory Status</p>
-                        <p className="stat-value" style={{ color: statusStyle.text }}>{stockStatus}</p>
-                        <p className="stat-detail">
-                            Stock: {currentData.currentStock} vs Demand: {currentData.prediction.predicted_quantity}
-                        </p>
-                    </div>
+                <div className="prediction-kpi-card">
+                    <p className="prediction-kpi-label">Projected Revenue</p>
+                    <p className="prediction-kpi-value">{formatCurrency(currentData.prediction.predicted_revenue)}</p>
+                </div>
+                <div className="prediction-kpi-card">
+                    <p className="prediction-kpi-label">Confidence</p>
+                    <p className="prediction-kpi-value">{confidenceLabel}</p>
                 </div>
             </div>
 
-            {/* --- GRAPH --- */}
-            <div className="admin-section">
-                <div className="admin-section-header">
-                    <h3 className="admin-section-title">Forecast Visualization</h3>
-                </div>
-                
-                <div className="admin-table-container" style={{ padding: '20px', background: 'white' }}>
-                    <div style={{ width: '100%', height: 400 }}>
+            <div className="prediction-board">
+                <div className="prediction-chart-panel">
+                    <div className="prediction-panel-top">
+                        <h3 className="admin-section-title">Unified Market View</h3>
+                        <span className={`prediction-status-badge ${stockColor}`} style={{ borderColor: statusStyle.border, color: statusStyle.text, background: statusStyle.bg }}>
+                            {stockStatus}
+                        </span>
+                    </div>
+
+                    <div className="prediction-chart-shell">
                         <ResponsiveContainer>
-                            <AreaChart data={getChartData()} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                            <ComposedChart data={chartData} margin={{ top: 12, right: 24, left: 0, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2D473E" stopOpacity={0.1}/>
-                                        <stop offset="95%" stopColor="#2D473E" stopOpacity={0}/>
+                                    <linearGradient id="forecastBand" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#5f6f5f" stopOpacity={0.22} />
+                                        <stop offset="95%" stopColor="#5f6f5f" stopOpacity={0.03} />
                                     </linearGradient>
                                 </defs>
+
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                                <XAxis dataKey="name" stroke="#6b7280" tick={{fontSize: 12}} axisLine={{ stroke: '#d1d5db' }} tickLine={false} />
-                                <YAxis stroke="#6b7280" tick={{fontSize: 12}} axisLine={{ stroke: '#d1d5db' }} tickLine={false} />
-                                
-                                <Tooltip content={<CustomTooltip />} />
-                                
-                                <Area type="monotone" dataKey="sales" stroke="#2D473E" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" activeDot={{ r: 6, fill: '#6B8E7F', stroke: '#fff', strokeWidth: 2 }} />
+                                <XAxis dataKey="name" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                                <YAxis yAxisId="units" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={formatCompact} />
+                                <YAxis yAxisId="money" orientation="right" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${formatCompact(v)}`} />
+
+                                <Tooltip content={<UnifiedTooltip />} />
+
+                                <Area yAxisId="units" dataKey="forecastBandBase" stackId="forecast" stroke="none" fill="transparent" />
+                                <Area yAxisId="units" type="monotone" dataKey="forecastBandRange" stackId="forecast" name="Forecast Range" stroke="none" fill="url(#forecastBand)" />
+
+                                <Line yAxisId="units" type="monotone" dataKey="sales" name="Demand" stroke="#2f3a38" strokeWidth={2.7} dot={{ r: 2.5 }} activeDot={{ r: 5, fill: '#ffffff', stroke: '#2f3a38', strokeWidth: 2 }} />
+                                <Line yAxisId="units" type="monotone" dataKey="movingAvg" name="Moving Avg" stroke="#d99c51" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                                <Line yAxisId="money" type="monotone" dataKey="revenue" name="Revenue" stroke="#1f9d62" strokeWidth={2.2} dot={false} />
+                                <Line yAxisId="money" type="monotone" dataKey="marketIndex" name="Market Index" stroke="#6b4ce2" strokeWidth={2} dot={false} />
+
                                 <ReferenceLine x={currentData.prediction.date} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'top', value: 'Forecast', fill: '#ef4444', fontSize: 12, fontWeight: 500 }} />
-                            </AreaChart>
+                            </ComposedChart>
                         </ResponsiveContainer>
                     </div>
-                    
-                    {/* Insight Text */}
-                    <div style={{ padding: '15px', background: '#f8fafc', borderRadius: '8px', marginTop: '10px' }}>
-                        <p style={{ fontSize: '0.9rem', color: '#4b5563', margin: 0 }}>
-                            <strong>💡 AI Insight:</strong> Based on historical data from {currentData.history[0].date} to {currentData.history[currentData.history.length-1].date}, 
-                            demand for this product is expected to be 
-                            <strong> {currentData.prediction.predicted_quantity} units</strong> next month.
-                        </p>
+
+                    <div className="prediction-mini-legend">
+                        <span><i className="lg demand" />Demand</span>
+                        <span><i className="lg moving" />Moving Avg</span>
+                        <span><i className="lg revenue" />Revenue</span>
+                        <span><i className="lg market" />Market Index</span>
+                        <span><i className="lg range" />Forecast Range</span>
                     </div>
                 </div>
+
+                <aside className="prediction-side-panel">
+                    <h4>Signal Panel</h4>
+                    <div className="prediction-side-metric">
+                        <span>Predicted Units</span>
+                        <strong>{currentData.prediction.predicted_quantity}</strong>
+                    </div>
+                    <div className="prediction-side-metric">
+                        <span>Current Stock</span>
+                        <strong>{currentData.currentStock}</strong>
+                    </div>
+                    <div className="prediction-side-metric">
+                        <span>Supply Gap</span>
+                        <strong className={demandGap < 0 ? 'neg' : 'pos'}>{demandGap}</strong>
+                    </div>
+                    <div className="prediction-side-metric">
+                        <span>Volatility Score</span>
+                        <strong>{volatilityScore.toFixed(1)}</strong>
+                    </div>
+                    <div className="prediction-side-note">
+                        <p>
+                            <strong>Desk note:</strong> {selectedProductName} is showing {momentum.toLowerCase()} momentum with {confidenceLabel.toLowerCase()} confidence.
+                            Keep stock buffer of at least {Math.max(0, Math.round(predictionPoint.sales * 0.1))} units near forecast cycle.
+                        </p>
+                    </div>
+                </aside>
             </div>
         </div>
     );
