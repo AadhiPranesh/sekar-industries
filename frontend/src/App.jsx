@@ -11,6 +11,7 @@ import AdminLogin from './pages/AdminLogin';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import MyRequests from './pages/MyRequests';
 import NotFound from './pages/NotFound';
 import { RequireAdminAuth, RedirectIfAdminAuthed } from './auth/AdminRouteGuards';
 // Admin Pages
@@ -21,6 +22,7 @@ import AdminSalesEntry from './pages/admin/AdminSalesEntry';
 import AdminProductHealth from './pages/admin/AdminProductHealth';
 import AdminPrediction from './pages/admin/AdminPrediction';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminRequests from './pages/admin/AdminRequests';
 // Components
 import ScrollToTop from './components/common/ScrollToTop';
 import WhatsAppButton from './components/common/WhatsAppButton';
@@ -52,6 +54,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="my-requests" element={<MyRequests />} />
             <Route element={<RedirectIfAdminAuthed />}>
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
@@ -63,6 +66,7 @@ function App() {
                 <Route path="sales-entry" element={<AdminSalesEntry />} />
                 <Route path="product-health" element={<AdminProductHealth />} />
                 <Route path="prediction" element={<AdminPrediction />} />
+                <Route path="requests" element={<AdminRequests />} />
                 <Route path="notifications" element={<AdminNotifications />} />
               </Route>
             </Route>

@@ -67,6 +67,16 @@ const AdminLayout = () => {
             )
         },
         {
+            to: '/admin/requests',
+            label: 'Product Requests',
+            icon: (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 3a1 1 0 100 2h6a1 1 0 100-2H7zm0 3a1 1 0 100 2h3a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+            )
+        },
+        {
             to: '/admin/notifications',
             label: 'Notifications',
             icon: (
