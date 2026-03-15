@@ -23,13 +23,22 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
+const isProduction = process.env.NODE_ENV === 'production';
 
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+app.set('trust proxy', 1);
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'https://sekar-industries-frontend.onrender.com',
+        process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true
 }));
 app.use(express.json());
@@ -41,9 +50,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24, 
+        maxAge: 1000 * 60 * 60 * 24,
         httpOnly: true,
-        secure: false 
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax'
     }
 }));
 
