@@ -3,9 +3,9 @@
  * Real-time connection to Python ML Service via Node.js
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
-    Area, Line, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
+    Line, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { productList } from '../../api/productConfig'; 
 import { adminApi } from '../../api/adminApi';
@@ -19,6 +19,19 @@ const formatCompact = (value) => {
     return `${value}`;
 };
 
+const parseMonthLabel = (value) => {
+    if (!value) return null;
+    const parsed = new Date(`${value.replace(/\s+/g, ' ')} 01`);
+    if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    return {
+        month: parsed.getMonth(),
+        year: parsed.getFullYear()
+    };
+};
+
 const UnifiedTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
@@ -29,17 +42,14 @@ const UnifiedTooltip = ({ active, payload, label }) => {
                     {label}
                 </p>
                 <p>
-                    Volume: <strong>{data.volume} Units</strong>
+                    Current Trend: <strong>{data.sales} Units</strong>
                 </p>
-                <p className="prediction-tooltip-revenue">
-                    Revenue: {formatCurrency(data.revenue)}
-                </p>
-                <p>
-                    Market Index: {data.marketIndex.toFixed(1)}
-                </p>
-                <p className="prediction-tooltip-range">
-                    Range: {Math.round(data.forecastLow)} to {Math.round(data.forecastHigh)}
-                </p>
+                {data.previousYearSales !== null && data.previousYearSales !== undefined && (
+                    <p>
+                        Last Year: <strong>{Math.round(data.previousYearSales)} Units</strong>
+                    </p>
+                )}
+                {data.type === 'prediction' && <p>Forecast month</p>}
             </div>
         );
     }
@@ -51,6 +61,8 @@ const AdminPrediction = () => {
     const [apiData, setApiData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const chartShellRef = useRef(null);
+    const [chartDimensions, setChartDimensions] = useState({ width: 0, height: 0 });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -70,6 +82,34 @@ const AdminPrediction = () => {
 
         fetchData();
     }, [selectedProduct]);
+
+    useEffect(() => {
+        const element = chartShellRef.current;
+        if (!element) {
+            return undefined;
+        }
+
+        const updateSize = () => {
+            const rect = element.getBoundingClientRect();
+            setChartDimensions({
+                width: Math.max(0, Math.floor(rect.width)),
+                height: Math.max(0, Math.floor(rect.height))
+            });
+        };
+
+        updateSize();
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(() => {
+                updateSize();
+            });
+            resizeObserver.observe(element);
+            return () => resizeObserver.disconnect();
+        }
+
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, [loading, error, selectedProduct]);
 
     if (loading) {
         return (
@@ -101,25 +141,6 @@ const AdminPrediction = () => {
         history: apiData.history_graph  
     };
 
-    let stockStatus = 'Sufficient';
-    let stockColor = 'success'; 
-    
-    if (currentData.currentStock < 10) {
-        stockStatus = 'Low Stock';
-        stockColor = 'warning';
-    } else if (currentData.prediction.predicted_quantity > currentData.currentStock) {
-        stockStatus = 'Insufficient';
-        stockColor = 'danger';
-    }
-
-    const colors = {
-        success: { border: '#16a34a', bg: '#dcfce7', text: '#16a34a', icon: 'M5 13l4 4L19 7' },
-        warning: { border: '#eab308', bg: '#fef9c3', text: '#ca8a04', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
-        danger:  { border: '#dc2626', bg: '#fee2e2', text: '#dc2626', icon: 'M6 18L18 6M6 6l12 12' }
-    };
-    
-    const statusStyle = colors[stockColor];
-
     const buildMarketData = () => {
         const rows = [
             ...currentData.history.map((h) => ({
@@ -136,58 +157,49 @@ const AdminPrediction = () => {
             }
         ];
 
-        let previousClose = Math.max(10, currentData.currentPrice * 0.94);
+        const comparisonBaseline = apiData?.comparison?.available
+            ? apiData.comparison.same_month_last_year_quantity
+            : null;
 
-        const withPrice = rows.map((row, index) => {
-            const changeRatio = index === 0 ? 0 : (row.sales - rows[index - 1].sales) / Math.max(1, rows[index - 1].sales);
-            const open = previousClose;
-            const close = Math.max(10, open * (1 + changeRatio * 0.65));
-            const high = Math.max(open, close) * 1.04;
-            const low = Math.min(open, close) * 0.96;
-            previousClose = close;
+        const previousYearLookup = rows.reduce((acc, row) => {
+            const parsed = parseMonthLabel(row.name);
+            if (!parsed) {
+                return acc;
+            }
 
-            return {
-                ...row,
-                priceOpen: Number(open.toFixed(2)),
-                priceClose: Number(close.toFixed(2)),
-                priceHigh: Number(high.toFixed(2)),
-                priceLow: Number(low.toFixed(2)),
-                volume: row.sales,
-                forecastLow: row.sales * (row.type === 'prediction' ? 0.88 : 0.92),
-                forecastHigh: row.sales * (row.type === 'prediction' ? 1.12 : 1.08)
-            };
-        });
+            acc[`${parsed.year}-${parsed.month}`] = row.sales;
+            return acc;
+        }, {});
 
-        const withIndicators = withPrice.map((row, idx, arr) => {
-            const start = Math.max(0, idx - 2);
-            const segment = arr.slice(start, idx + 1);
-            const movingAvg = segment.reduce((sum, item) => sum + item.sales, 0) / segment.length;
-            const marketIndex = row.priceClose * 10;
+        const withPrice = rows.map((row) => {
+            const parsed = parseMonthLabel(row.name);
+            const previousYearKey = parsed ? `${parsed.year - 1}-${parsed.month}` : null;
 
             return {
                 ...row,
-                movingAvg: Number(movingAvg.toFixed(2)),
-                marketIndex: Number(marketIndex.toFixed(2)),
-                forecastBandBase: Number(row.forecastLow.toFixed(2)),
-                forecastBandRange: Number((row.forecastHigh - row.forecastLow).toFixed(2))
+                previousYearSales: comparisonBaseline !== null && comparisonBaseline !== undefined
+                    ? comparisonBaseline
+                    : previousYearKey && previousYearLookup[previousYearKey] !== undefined
+                        ? previousYearLookup[previousYearKey]
+                        : null
             };
         });
 
-        return withIndicators;
+        return withPrice;
     };
 
     const chartData = buildMarketData();
+    const hasPreviousYearSeries = chartData.some((point) => point.previousYearSales !== null && point.previousYearSales !== undefined);
     const predictionPoint = chartData[chartData.length - 1];
     const latestHistory = chartData[chartData.length - 2] || predictionPoint;
-    const previousHistory = chartData[chartData.length - 3] || latestHistory;
     const selectedProductName = productList.find((p) => p.id === selectedProduct)?.name || selectedProduct;
     const growthRate = ((predictionPoint.sales - latestHistory.sales) / Math.max(1, latestHistory.sales)) * 100;
-    const momentum = growthRate >= 0 ? 'Bullish' : 'Cooling';
-    const confidenceSpread = ((predictionPoint.forecastHigh - predictionPoint.forecastLow) / Math.max(1, predictionPoint.sales)) * 100;
-    const confidenceLabel = confidenceSpread <= 20 ? 'High Confidence' : confidenceSpread <= 30 ? 'Medium Confidence' : 'Low Confidence';
-    const shortTermTrend = ((latestHistory.sales - previousHistory.sales) / Math.max(1, previousHistory.sales)) * 100;
-    const demandGap = currentData.currentStock - currentData.prediction.predicted_quantity;
-    const volatilityScore = Math.abs(shortTermTrend) + Math.abs(growthRate / 2);
+    const forecastUnitsDelta = predictionPoint.sales - latestHistory.sales;
+    const forecastRevenue = currentData.prediction.predicted_revenue;
+    const previousYearValue = predictionPoint.previousYearSales;
+    const previousYearDelta = previousYearValue !== null && previousYearValue !== undefined
+        ? predictionPoint.sales - previousYearValue
+        : null;
 
     return (
         <div className="admin-page">
@@ -212,96 +224,63 @@ const AdminPrediction = () => {
 
             <div className="prediction-kpi-strip">
                 <div className="prediction-kpi-card">
-                    <p className="prediction-kpi-label">Forecast Growth</p>
+                    <p className="prediction-kpi-label">Forecast Growth vs Last Point</p>
                     <p className={`prediction-kpi-value ${growthRate >= 0 ? 'pos' : 'neg'}`}>{formatPercent(growthRate)}</p>
                 </div>
                 <div className="prediction-kpi-card">
-                    <p className="prediction-kpi-label">Momentum</p>
-                    <p className={`prediction-kpi-value ${shortTermTrend >= 0 ? 'pos' : 'neg'}`}>{momentum} {formatPercent(shortTermTrend)}</p>
+                    <p className="prediction-kpi-label">Forecast Units Delta</p>
+                    <p className={`prediction-kpi-value ${forecastUnitsDelta >= 0 ? 'pos' : 'neg'}`}>
+                        {forecastUnitsDelta >= 0 ? '+' : ''}{Math.round(forecastUnitsDelta)} units
+                    </p>
                 </div>
                 <div className="prediction-kpi-card">
-                    <p className="prediction-kpi-label">Projected Revenue</p>
-                    <p className="prediction-kpi-value">{formatCurrency(currentData.prediction.predicted_revenue)}</p>
+                    <p className="prediction-kpi-label">Forecast Revenue</p>
+                    <p className="prediction-kpi-value">{formatCurrency(forecastRevenue)}</p>
                 </div>
                 <div className="prediction-kpi-card">
-                    <p className="prediction-kpi-label">Confidence</p>
-                    <p className="prediction-kpi-value">{confidenceLabel}</p>
+                    <p className="prediction-kpi-label">Forecast vs Last Year</p>
+                    <p className={`prediction-kpi-value ${previousYearDelta !== null && previousYearDelta >= 0 ? 'pos' : 'neg'}`}>
+                        {previousYearDelta === null
+                            ? 'N/A'
+                            : `${previousYearDelta >= 0 ? '+' : ''}${Math.round(previousYearDelta)} units`}
+                    </p>
                 </div>
             </div>
 
-            <div className="prediction-board">
-                <div className="prediction-chart-panel">
-                    <div className="prediction-panel-top">
-                        <h3 className="admin-section-title">Unified Market View</h3>
-                        <span className={`prediction-status-badge ${stockColor}`} style={{ borderColor: statusStyle.border, color: statusStyle.text, background: statusStyle.bg }}>
-                            {stockStatus}
-                        </span>
-                    </div>
+            <div className="prediction-chart-panel">
+                <div className="prediction-panel-top">
+                    <h3 className="admin-section-title">Unified Market View</h3>
+                </div>
 
-                    <div className="prediction-chart-shell">
-                        <ResponsiveContainer>
+                <div className="prediction-chart-shell" ref={chartShellRef}>
+                    {chartDimensions.width > 0 && chartDimensions.height > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={280}>
                             <ComposedChart data={chartData} margin={{ top: 12, right: 24, left: 0, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="forecastBand" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#5f6f5f" stopOpacity={0.22} />
-                                        <stop offset="95%" stopColor="#5f6f5f" stopOpacity={0.03} />
-                                    </linearGradient>
-                                </defs>
-
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                                 <XAxis dataKey="name" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                                 <YAxis yAxisId="units" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={formatCompact} />
-                                <YAxis yAxisId="money" orientation="right" stroke="#6b7280" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${formatCompact(v)}`} />
 
                                 <Tooltip content={<UnifiedTooltip />} />
 
-                                <Area yAxisId="units" dataKey="forecastBandBase" stackId="forecast" stroke="none" fill="transparent" />
-                                <Area yAxisId="units" type="monotone" dataKey="forecastBandRange" stackId="forecast" name="Forecast Range" stroke="none" fill="url(#forecastBand)" />
-
-                                <Line yAxisId="units" type="monotone" dataKey="sales" name="Demand" stroke="#2f3a38" strokeWidth={2.7} dot={{ r: 2.5 }} activeDot={{ r: 5, fill: '#ffffff', stroke: '#2f3a38', strokeWidth: 2 }} />
-                                <Line yAxisId="units" type="monotone" dataKey="movingAvg" name="Moving Avg" stroke="#d99c51" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                                <Line yAxisId="money" type="monotone" dataKey="revenue" name="Revenue" stroke="#1f9d62" strokeWidth={2.2} dot={false} />
-                                <Line yAxisId="money" type="monotone" dataKey="marketIndex" name="Market Index" stroke="#6b4ce2" strokeWidth={2} dot={false} />
+                                <Line yAxisId="units" type="monotone" dataKey="sales" name="Prediction Trend" stroke="#2f3a38" strokeWidth={2.8} dot={{ r: 2.5 }} activeDot={{ r: 5, fill: '#ffffff', stroke: '#2f3a38', strokeWidth: 2 }} />
+                                <Line yAxisId="units" type="monotone" dataKey="previousYearSales" name="Last Year Same Month" stroke="#2563eb" strokeWidth={2.2} strokeDasharray="6 4" dot={false} connectNulls={false} />
 
                                 <ReferenceLine x={currentData.prediction.date} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'top', value: 'Forecast', fill: '#ef4444', fontSize: 12, fontWeight: 500 }} />
                             </ComposedChart>
                         </ResponsiveContainer>
-                    </div>
-
-                    <div className="prediction-mini-legend">
-                        <span><i className="lg demand" />Demand</span>
-                        <span><i className="lg moving" />Moving Avg</span>
-                        <span><i className="lg revenue" />Revenue</span>
-                        <span><i className="lg market" />Market Index</span>
-                        <span><i className="lg range" />Forecast Range</span>
-                    </div>
+                    ) : null}
                 </div>
 
-                <aside className="prediction-side-panel">
-                    <h4>Signal Panel</h4>
-                    <div className="prediction-side-metric">
-                        <span>Predicted Units</span>
-                        <strong>{currentData.prediction.predicted_quantity}</strong>
+                <div className="prediction-mini-legend">
+                    <span><i className="lg demand" />Prediction Trend</span>
+                    <span><i className="lg previous-year" />Last Year Same Month</span>
+                </div>
+
+                {!hasPreviousYearSeries && (
+                    <div className="prediction-data-note">
+                        {apiData?.comparison?.note || 'Prediction available, but previous-year same-month comparison is not available in the dataset.'}
                     </div>
-                    <div className="prediction-side-metric">
-                        <span>Current Stock</span>
-                        <strong>{currentData.currentStock}</strong>
-                    </div>
-                    <div className="prediction-side-metric">
-                        <span>Supply Gap</span>
-                        <strong className={demandGap < 0 ? 'neg' : 'pos'}>{demandGap}</strong>
-                    </div>
-                    <div className="prediction-side-metric">
-                        <span>Volatility Score</span>
-                        <strong>{volatilityScore.toFixed(1)}</strong>
-                    </div>
-                    <div className="prediction-side-note">
-                        <p>
-                            <strong>Desk note:</strong> {selectedProductName} is showing {momentum.toLowerCase()} momentum with {confidenceLabel.toLowerCase()} confidence.
-                            Keep stock buffer of at least {Math.max(0, Math.round(predictionPoint.sales * 0.1))} units near forecast cycle.
-                        </p>
-                    </div>
-                </aside>
+                )}
             </div>
         </div>
     );

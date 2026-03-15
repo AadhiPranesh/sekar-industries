@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import { useAdminAuth } from '../auth/AdminAuthContext';
+import { useAdminAuth } from '../auth/useAdminAuth';
 
 const AdminLogin = () => {
 	const navigate = useNavigate();

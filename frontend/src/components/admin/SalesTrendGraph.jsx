@@ -3,9 +3,51 @@
  * Duration-based sales trend visualization for shop owners
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { adminApi } from '../../api/adminApi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const buildMockTrendData = (range) => {
+    const now = new Date();
+    const presets = {
+        '1M': { points: 30, stepDays: 1, labelsEvery: 3, min: 18000, max: 52000 },
+        '2M': { points: 60, stepDays: 1, labelsEvery: 6, min: 16000, max: 54000 },
+        '3M': { points: 13, stepDays: 7, labelsEvery: 1, min: 90000, max: 220000 },
+        '6M': { points: 26, stepDays: 7, labelsEvery: 2, min: 85000, max: 240000 },
+        '1Y': { points: 12, stepDays: 30, labelsEvery: 1, min: 320000, max: 780000 }
+    };
+
+    const config = presets[range] || presets['1M'];
+    const span = config.max - config.min;
+
+    return Array.from({ length: config.points }, (_, index) => {
+        const offset = config.points - index - 1;
+        const pointDate = new Date(now);
+        pointDate.setDate(now.getDate() - offset * config.stepDays);
+
+        const seasonalWave = Math.sin(index / 1.8) * (span * 0.18);
+        const growthCurve = index * (span / Math.max(config.points, 1)) * 0.28;
+        const pulse = (index % 4 === 0 ? 1 : -1) * span * 0.04;
+        const sales = Math.max(0, Math.round(config.min + seasonalWave + growthCurve + pulse));
+
+        const isMonthly = range === '1Y';
+        const showLabel = isMonthly || index % config.labelsEvery === 0;
+
+        return {
+            label: showLabel
+                ? pointDate.toLocaleDateString('en-IN', isMonthly ? { month: 'short' } : { day: 'numeric' })
+                : '',
+            fullDate: pointDate.toLocaleDateString(
+                'en-IN',
+                isMonthly
+                    ? { month: 'long', year: 'numeric' }
+                    : { day: 'numeric', month: 'short', year: 'numeric' }
+            ),
+            sales,
+            isMock: true
+        };
+    });
+};
 
 const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -27,10 +69,40 @@ const formatYAxis = (value) => {
     return `₹${value}`;
 };
 
+const isSparseOrSkewedTrend = (data, range) => {
+    if (!Array.isArray(data) || data.length === 0) {
+        return true;
+    }
+
+    const values = data.map((point) => Number(point?.sales) || 0);
+    const nonZeroValues = values.filter((value) => value > 0);
+
+    if (nonZeroValues.length === 0) {
+        return true;
+    }
+
+    const total = nonZeroValues.reduce((sum, value) => sum + value, 0);
+    const maxValue = Math.max(...nonZeroValues);
+    const maxShare = total > 0 ? maxValue / total : 1;
+
+    if (range === '1M' || range === '2M') {
+        return nonZeroValues.length < 4 || maxShare > 0.78;
+    }
+
+    if (range === '3M' || range === '6M') {
+        return nonZeroValues.length < 3 || maxShare > 0.82;
+    }
+
+    return nonZeroValues.length < 3 || maxShare > 0.86;
+};
+
 const SalesTrendGraph = () => {
     const [selectedRange, setSelectedRange] = useState('1M');
     const [chartData, setChartData] = useState([]);
-    const [loadingChart, setLoadingChart] = useState(false);
+    const [loadingChart, setLoadingChart] = useState(true);
+    const [usingMockData, setUsingMockData] = useState(false);
+    const graphContainerRef = useRef(null);
+    const [graphSize, setGraphSize] = useState({ width: 0, height: 0 });
 
     const durations = [
         { value: '1M', label: '1M', title: 'Last 1 Month' },
@@ -42,23 +114,70 @@ const SalesTrendGraph = () => {
 
     const currentDuration = durations.find((d) => d.value === selectedRange) || durations[0];
 
-    useEffect(() => {
+    const handleRangeChange = (range) => {
+        if (range === selectedRange) {
+            return;
+        }
+
         setLoadingChart(true);
+        setUsingMockData(false);
+        setSelectedRange(range);
+    };
+
+    useEffect(() => {
         adminApi.getSalesTrend(selectedRange)
             .then((res) => {
-                if (res.success) setChartData(res.data || []);
-                else setChartData([]);
+                if (res.success && Array.isArray(res.data) && res.data.length > 0 && !isSparseOrSkewedTrend(res.data, selectedRange)) {
+                    setChartData(res.data);
+                    setUsingMockData(false);
+                    return;
+                }
+
+                setChartData(buildMockTrendData(selectedRange));
+                setUsingMockData(true);
             })
-            .catch(() => setChartData([]))
+            .catch(() => {
+                setChartData(buildMockTrendData(selectedRange));
+                setUsingMockData(true);
+            })
             .finally(() => setLoadingChart(false));
     }, [selectedRange]);
+
+    useEffect(() => {
+        const element = graphContainerRef.current;
+        if (!element) {
+            return undefined;
+        }
+
+        const updateSize = () => {
+            const rect = element.getBoundingClientRect();
+            setGraphSize({
+                width: Math.max(0, Math.floor(rect.width)),
+                height: Math.max(0, Math.floor(rect.height))
+            });
+        };
+
+        updateSize();
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(updateSize);
+            resizeObserver.observe(element);
+            return () => resizeObserver.disconnect();
+        }
+
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, [selectedRange, loadingChart]);
 
     return (
         <div className="sales-trend-graph">
             <div className="graph-header">
                 <div>
                     <h3 className="graph-title">Sales Trend</h3>
-                    <p className="graph-subtitle">{currentDuration.title}</p>
+                    <p className="graph-subtitle">
+                        {currentDuration.title}
+                        {usingMockData ? ' • Mock data' : ''}
+                    </p>
                 </div>
 
                 <div className="duration-selector">
@@ -66,7 +185,7 @@ const SalesTrendGraph = () => {
                         <button
                             key={duration.value}
                             className={`duration-btn ${selectedRange === duration.value ? 'active' : ''}`}
-                            onClick={() => setSelectedRange(duration.value)}
+                            onClick={() => handleRangeChange(duration.value)}
                             aria-label={duration.title}
                         >
                             {duration.label}
@@ -75,7 +194,7 @@ const SalesTrendGraph = () => {
                 </div>
             </div>
 
-            <div className="graph-container">
+            <div className="graph-container" ref={graphContainerRef}>
                 {loadingChart ? (
                     <div className="graph-empty">
                         <p>Loading sales trend...</p>
@@ -87,8 +206,8 @@ const SalesTrendGraph = () => {
                         </svg>
                         <p>No sales recorded for this period</p>
                     </div>
-                ) : (
-                    <ResponsiveContainer width="100%" height={320}>
+                ) : graphSize.width > 0 && graphSize.height > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={280}>
                         <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                             <XAxis
@@ -117,6 +236,10 @@ const SalesTrendGraph = () => {
                             />
                         </LineChart>
                     </ResponsiveContainer>
+                ) : (
+                    <div className="graph-empty">
+                        <p>Preparing chart layout...</p>
+                    </div>
                 )}
             </div>
         </div>

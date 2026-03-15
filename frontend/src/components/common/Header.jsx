@@ -46,6 +46,14 @@ const Header = () => {
                     credentials: 'include'
                 });
 
+                if (response.status === 401) {
+                    localStorage.removeItem('user');
+                    setUser(null);
+                    setIsProfileOpen(false);
+                    setRequestSummary({ total: 0, open: 0, closed: 0 });
+                    return;
+                }
+
                 if (!response.ok) {
                     setRequestSummary({ total: 0, open: 0, closed: 0 });
                     return;

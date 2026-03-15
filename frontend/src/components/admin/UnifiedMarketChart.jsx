@@ -9,6 +9,7 @@ import {
     Area,
     Line
 } from 'recharts';
+import { useEffect, useRef, useState } from 'react';
 import './UnifiedMarketChart.css';
 
 const demoData = [
@@ -135,13 +136,42 @@ const UnifiedMarketChart = ({
     title = 'Unified Market View'
 }) => {
     const chartData = withForecastBand(data);
+    const chartWrapRef = useRef(null);
+    const [chartSize, setChartSize] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        const element = chartWrapRef.current;
+        if (!element) {
+            return undefined;
+        }
+
+        const updateSize = () => {
+            const rect = element.getBoundingClientRect();
+            setChartSize({
+                width: Math.max(0, Math.floor(rect.width)),
+                height: Math.max(0, Math.floor(rect.height))
+            });
+        };
+
+        updateSize();
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(updateSize);
+            resizeObserver.observe(element);
+            return () => resizeObserver.disconnect();
+        }
+
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
 
     return (
         <section className="unified-market-card">
             <h3 className="unified-market-title">{title}</h3>
 
-            <div className="unified-market-chart-wrap">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="unified-market-chart-wrap" ref={chartWrapRef}>
+                {chartSize.width > 0 && chartSize.height > 0 ? (
+                <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={280}>
                     <ComposedChart data={chartData} margin={{ top: 10, right: 8, bottom: 4, left: 0 }}>
                         <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" vertical={false} />
 
@@ -236,6 +266,7 @@ const UnifiedMarketChart = ({
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
+                ) : null}
             </div>
 
             <div className="unified-market-legend">

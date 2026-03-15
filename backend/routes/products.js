@@ -37,10 +37,12 @@ const imageUpload = multer({
 
 // Helper to add availability to a plain product object
 const serializeProduct = (p) => {
+    const normalized = withRatingDefaults(p);
+
     const base = {
-        ...p,
-        id: p.productId,
-        image: p.image || ''
+        ...normalized,
+        id: normalized.productId,
+        image: normalized.image || ''
     };
 
     delete base._id;
@@ -72,6 +74,46 @@ const normalizeBoolean = (value) => {
         if (value.toLowerCase() === 'false') return false;
     }
     return undefined;
+};
+
+const getSeedFromText = (value) => {
+    const text = String(value || 'product').trim();
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) {
+        hash = (hash * 31 + text.charCodeAt(i)) % 1000003;
+    }
+    return hash;
+};
+
+const getDefaultRatingMeta = (productId, name = '') => {
+    const seed = getSeedFromText(productId || name || 'product');
+    return {
+        rating: Math.round((4 + (seed % 10) / 10) * 10) / 10,
+        reviewCount: 45 + (seed % 250)
+    };
+};
+
+const withRatingDefaults = (product) => {
+    const currentRating = Number(product?.rating);
+    const currentReviewCount = Number(product?.reviewCount);
+    const hasRating = Number.isFinite(currentRating) && currentRating > 0;
+    const hasReviewCount = Number.isFinite(currentReviewCount) && currentReviewCount > 0;
+
+    if (hasRating && hasReviewCount) {
+        return {
+            ...product,
+            rating: Math.round(currentRating * 10) / 10,
+            reviewCount: Math.round(currentReviewCount)
+        };
+    }
+
+    const fallback = getDefaultRatingMeta(product?.productId, product?.name);
+
+    return {
+        ...product,
+        rating: hasRating ? Math.round(currentRating * 10) / 10 : fallback.rating,
+        reviewCount: hasReviewCount ? Math.round(currentReviewCount) : fallback.reviewCount
+    };
 };
 
 const buildProductFilter = (query = {}) => {
@@ -246,6 +288,7 @@ router.post('/', verifyToken, async (req, res) => {
             lowStockThreshold: thresholdNumber !== undefined ? thresholdNumber : 10,
             isFeatured: featuredBool !== undefined ? featuredBool : false,
             isNew: isNewBool !== undefined ? isNewBool : false,
+            ...getDefaultRatingMeta(productId, name),
             image
         });
 

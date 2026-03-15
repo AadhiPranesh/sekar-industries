@@ -5,6 +5,7 @@
 
 import { fetchData, createResponse } from '../api/config';
 import {
+    mockProducts,
     getProducts as getMockProducts,
     getProductsByCategory as getMockProductsByCategory,
     getFeaturedProducts as getMockFeaturedProducts,
@@ -13,11 +14,97 @@ import {
     getProductById as getMockProductById
 } from '../data/mockProducts';
 
+const ratingLookup = mockProducts.reduce((acc, product) => {
+    const keys = [product.id, product.name]
+        .filter(Boolean)
+        .map((value) => String(value).trim().toLowerCase());
+
+    keys.forEach((key) => {
+        acc[key] = {
+            rating: product.rating,
+            reviewCount: product.reviewCount
+        };
+    });
+
+    return acc;
+}, {});
+
+const getDeterministicSeed = (value) => {
+    const input = String(value || 'sekar-product');
+    let hash = 0;
+    for (let i = 0; i < input.length; i += 1) {
+        hash = (hash * 31 + input.charCodeAt(i)) % 1000003;
+    }
+    return hash;
+};
+
+const getFallbackRatingMeta = (product) => {
+    const seed = getDeterministicSeed(product?.id || product?.productId || product?.name);
+    const rating = Math.round((4 + (seed % 10) / 10) * 10) / 10;
+    const reviewCount = 40 + (seed % 220);
+
+    return { rating, reviewCount };
+};
+
+const withRatingFallback = (product) => {
+    if (!product || typeof product !== 'object') {
+        return product;
+    }
+
+    const currentRating = Number(product.rating);
+    const currentReviewCount = Number(product.reviewCount);
+    const hasRating = Number.isFinite(currentRating) && currentRating > 0;
+    const hasReviewCount = Number.isFinite(currentReviewCount) && currentReviewCount > 0;
+
+    if (hasRating && hasReviewCount) {
+        return {
+            ...product,
+            rating: Math.round(currentRating * 10) / 10,
+            reviewCount: Math.round(currentReviewCount)
+        };
+    }
+
+    const lookupKeys = [product.id, product.productId, product.name]
+        .filter(Boolean)
+        .map((value) => String(value).trim().toLowerCase());
+
+    const match = lookupKeys.map((key) => ratingLookup[key]).find(Boolean);
+    const fallback = match || getFallbackRatingMeta(product);
+
+    return {
+        ...product,
+        rating: hasRating ? Math.round(currentRating * 10) / 10 : fallback.rating,
+        reviewCount: hasReviewCount ? Math.round(currentReviewCount) : fallback.reviewCount
+    };
+};
+
+const normalizeProductResponse = (response) => {
+    if (!response?.success) {
+        return response;
+    }
+
+    if (Array.isArray(response.data)) {
+        return {
+            ...response,
+            data: response.data.map(withRatingFallback)
+        };
+    }
+
+    if (response.data && typeof response.data === 'object') {
+        return {
+            ...response,
+            data: withRatingFallback(response.data)
+        };
+    }
+
+    return response;
+};
+
 /**
  * Get all products
  */
 export const getAllProducts = () => {
-    return fetchData('/products', () => createResponse(getMockProducts()));
+    return fetchData('/products', () => createResponse(getMockProducts())).then(normalizeProductResponse);
 };
 
 /**
@@ -25,9 +112,10 @@ export const getAllProducts = () => {
  * @param {string} category - Category name or 'All'
  */
 export const getProductsByCategory = (category) => {
-    return fetchData(`/products?category=${category}`, () =>
+    const encodedCategory = encodeURIComponent(category || 'All');
+    return fetchData(`/products?category=${encodedCategory}`, () =>
         createResponse(getMockProductsByCategory(category))
-    );
+    ).then(normalizeProductResponse);
 };
 
 /**
@@ -36,7 +124,7 @@ export const getProductsByCategory = (category) => {
 export const getFeaturedProducts = () => {
     return fetchData('/products?featured=true', () =>
         createResponse(getMockFeaturedProducts())
-    );
+    ).then(normalizeProductResponse);
 };
 
 /**
@@ -45,7 +133,7 @@ export const getFeaturedProducts = () => {
 export const getLowStockProducts = () => {
     return fetchData('/products?lowStock=true', () =>
         createResponse(getMockLowStockProducts())
-    );
+    ).then(normalizeProductResponse);
 };
 
 /**
@@ -54,7 +142,7 @@ export const getLowStockProducts = () => {
 export const getOutOfStockProducts = () => {
     return fetchData('/products?outOfStock=true', () =>
         createResponse(getMockOutOfStockProducts())
-    );
+    ).then(normalizeProductResponse);
 };
 
 /**
@@ -68,7 +156,7 @@ export const getProductById = (id) => {
             return createResponse(null, 'Product not found');
         }
         return createResponse(product);
-    });
+    }).then(normalizeProductResponse);
 };
 
 /**
@@ -83,7 +171,7 @@ export const searchProducts = (query) => {
             p.description.toLowerCase().includes(query.toLowerCase())
         );
         return createResponse(filtered);
-    });
+    }).then(normalizeProductResponse);
 };
 
 export default {

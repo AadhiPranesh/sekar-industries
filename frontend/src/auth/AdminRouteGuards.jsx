@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAdminAuth } from './AdminAuthContext';
+import { useAdminAuth } from './useAdminAuth';
 
 export const RequireAdminAuth = () => {
     const { isAdminAuthenticated, isCheckingAuth } = useAdminAuth();

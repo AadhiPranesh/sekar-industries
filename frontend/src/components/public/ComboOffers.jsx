@@ -58,8 +58,46 @@ const GiftIcon = () => (
     </svg>
 );
 
-const calculateSavingsPercentage = (originalPrice, comboPrice) => {
-    return Math.round(((originalPrice - comboPrice) / originalPrice) * 100);
+const toNumber = (value, fallback = 0) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const normalizeCombo = (combo, index) => {
+    // Shape A: legacy/analytics combo API with explicit product_1/product_2 fields
+    if (combo?.product_1 && combo?.product_2) {
+        return {
+            ...combo,
+            combo_id: combo.combo_id ?? combo.id ?? index + 1,
+            product_1_price: toNumber(combo.product_1_price),
+            product_2_price: toNumber(combo.product_2_price),
+            combo_price: toNumber(combo.combo_price)
+        };
+    }
+
+    // Shape B: static combo API with name/items/originalPrice/discountedPrice fields
+    const originalPrice = toNumber(combo?.originalPrice);
+    const comboPrice = toNumber(combo?.discountedPrice, originalPrice);
+    const itemIds = Array.isArray(combo?.items) ? combo.items : [];
+
+    const item1 = mockProducts.find((p) => p.id === itemIds[0]);
+    const item2 = mockProducts.find((p) => p.id === itemIds[1]);
+
+    const item1Price = item1?.price ?? (originalPrice > 0 ? Math.round(originalPrice / 2) : 0);
+    const item2Price = item2?.price ?? Math.max(0, originalPrice - item1Price);
+
+    return {
+        combo_id: combo?.combo_id ?? combo?.id ?? index + 1,
+        product_1: item1?.name ?? `${combo?.name || 'Combo'} Item 1`,
+        product_1_id: item1?.id ?? itemIds[0] ?? `combo-${index + 1}-item-1`,
+        product_1_category: item1?.category ?? 'Bundle',
+        product_1_price: item1Price,
+        product_2: item2?.name ?? `${combo?.name || 'Combo'} Item 2`,
+        product_2_id: item2?.id ?? itemIds[1] ?? `combo-${index + 1}-item-2`,
+        product_2_category: item2?.category ?? 'Bundle',
+        product_2_price: item2Price,
+        combo_price: comboPrice
+    };
 };
 
 const ComboOffers = () => {
@@ -78,8 +116,9 @@ const ComboOffers = () => {
                 console.log('Combo response:', response);
                 
                 if (response.success) {
-                    setCombos(response.data);
-                    console.log('Combos set:', response.data);
+                    const normalized = (response.data || []).map(normalizeCombo);
+                    setCombos(normalized);
+                    console.log('Combos set:', normalized);
                 } else {
                     setError(response.message);
                     console.error('Combo fetch failed:', response.message);
@@ -167,7 +206,6 @@ const ComboOffers = () => {
                     {combos.map((combo, idx) => {
                         const originalPrice = combo.product_1_price + combo.product_2_price;
                         const savingsAmount = originalPrice - combo.combo_price;
-                        const savingsPercent = calculateSavingsPercentage(originalPrice, combo.combo_price);
                         
                         return (
                         <div 

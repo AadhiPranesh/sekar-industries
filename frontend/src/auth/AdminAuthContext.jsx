@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-
-const AdminAuthContext = createContext(null);
+import { useEffect, useMemo, useState } from 'react';
+import { AdminAuthContext } from './adminAuthContextObject';
 const ADMIN_AUTH_TOKEN_KEY = 'admin_jwt_token';
+const ADMIN_AUTH_EXPIRED_EVENT = 'admin-auth-expired';
 
 export const AdminAuthProvider = ({ children }) => {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -42,6 +42,17 @@ export const AdminAuthProvider = ({ children }) => {
         };
 
         validateToken();
+    }, []);
+
+    useEffect(() => {
+        const handleAuthExpired = () => {
+            localStorage.removeItem(ADMIN_AUTH_TOKEN_KEY);
+            setIsAdminAuthenticated(false);
+            setIsCheckingAuth(false);
+        };
+
+        window.addEventListener(ADMIN_AUTH_EXPIRED_EVENT, handleAuthExpired);
+        return () => window.removeEventListener(ADMIN_AUTH_EXPIRED_EVENT, handleAuthExpired);
     }, []);
 
     const login = async (email, password) => {
@@ -91,12 +102,4 @@ export const AdminAuthProvider = ({ children }) => {
             {children}
         </AdminAuthContext.Provider>
     );
-};
-
-export const useAdminAuth = () => {
-    const context = useContext(AdminAuthContext);
-    if (!context) {
-        throw new Error('useAdminAuth must be used inside AdminAuthProvider');
-    }
-    return context;
 };
