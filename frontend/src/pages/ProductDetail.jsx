@@ -17,6 +17,36 @@ import QuoteModal from '../components/public/QuoteModal';
 import { getProductById } from '../services/productService';
 import Icons from '../components/common/Icons';
 
+const MOCK_REVIEW_TEMPLATES = [
+    'Good build quality and finish. Product is worth the price.',
+    'Value for money. Delivery and packaging were good.',
+    'Satisfied with quality and comfort. Recommended for regular use.',
+    'Looks premium and works as expected. Will buy again.',
+    'Strong material and neat design. Matches the product description.'
+];
+
+const MOCK_REVIEW_NAMES = ['Ravi K', 'Priya S', 'Arun M', 'Nisha R', 'Karthik V', 'Divya P'];
+
+const buildMockReviews = (product) => {
+    const fallbackRating = Number(product?.rating) > 0 ? Number(product.rating) : 4.3;
+    const fallbackReviewCount = Number(product?.reviewCount) > 0 ? Number(product.reviewCount) : 24;
+    const visibleCount = Math.min(Math.max(3, Math.round(fallbackReviewCount / 20)), 6);
+    const roundedRating = Math.min(5, Math.max(1, Math.round(fallbackRating)));
+
+    return Array.from({ length: visibleCount }, (_, index) => ({
+        id: `mock-${product?.id || 'product'}-${index + 1}`,
+        userName: MOCK_REVIEW_NAMES[index % MOCK_REVIEW_NAMES.length],
+        rating: roundedRating,
+        isVerified: true,
+        date: new Date(Date.now() - (index + 1) * 86400000 * 6).toISOString(),
+        reviewText: MOCK_REVIEW_TEMPLATES[index % MOCK_REVIEW_TEMPLATES.length],
+        images: [],
+        ownerReply: '',
+        helpfulCount: 0,
+        isMock: true
+    }));
+};
+
 const ProductDetail = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -165,6 +195,8 @@ const ProductDetail = () => {
     }
 
     const categoryIcon = categoryIcons[product.category] || <Icons.Orders />;
+    const hasLiveReviews = reviews.length > 0;
+    const displayReviews = hasLiveReviews ? reviews : buildMockReviews(product);
 
     return (
         <div className="page product-detail-page">
@@ -282,11 +314,20 @@ const ProductDetail = () => {
                             </button>
                         </div>
                         
-                        <ReviewSummary reviews={reviews} />
+                        <ReviewSummary
+                            reviews={hasLiveReviews ? reviews : []}
+                            fallbackRating={product?.rating}
+                            fallbackReviewCount={product?.reviewCount}
+                        />
                         {reviewsError && (
                             <p style={{ margin: '0.75rem 0', color: 'var(--primary)' }}>{reviewsError}</p>
                         )}
-                        <ReviewList reviews={reviews} loading={reviewsLoading} />
+                        {!hasLiveReviews && (
+                            <p style={{ margin: '0.75rem 0', color: '#64748b', fontSize: '0.92rem' }}>
+                                Showing sample review cards for UI preview. Submit verified reviews to replace them with live feedback.
+                            </p>
+                        )}
+                        <ReviewList reviews={displayReviews} loading={reviewsLoading} />
                     </div>
                 </section>
 

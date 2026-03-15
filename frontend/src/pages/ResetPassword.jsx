@@ -119,9 +119,8 @@ const ResetPassword = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email })
             });
-            const data = await res.json();
-            const otp = data.dev_otp ? ` (Dev OTP: ${data.dev_otp})` : '';
-            setMessage(`New OTP sent to your email.${otp}`);
+            await res.json();
+            setMessage('New OTP sent to your email.');
             setTimeout(() => setMessage(''), 5000);
         } catch (err) {
             setErrors({ form: 'Failed to resend OTP. Please try again.' });
