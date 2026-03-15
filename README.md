@@ -1,16 +1,32 @@
-# Sekar Industries - Industrial Supplies Website
+# Sekar Industries - Full Stack Industrial Platform
 
-> A modern, responsive React web application for Sekar Industries - Your trusted partner for quality industrial supplies, hardware, and electrical components since 1995.
+> A modern full-stack application for Sekar Industries with React frontend, Express/Mongo backend, admin analytics, and email-based password reset OTP.
 
-## 🚀 Features
+## Current Project Status
 
-### Pages
+- Frontend and backend are integrated and running in local development.
+- User authentication supports signup, login, logout, forgot password, and reset password.
+- Forgot password sends OTP by email using Gmail SMTP app password configuration.
+- Development OTP leak in API/UI has been removed.
+- Product rating and review counts are normalized for consistent UI rendering.
+- Admin dashboard supports live sales stats and trend visualization.
+
+## Features
+
+### Public Pages
 - **Home** - Hero section, About, Featured Products, Categories Showcase, Contact
 - **Products** - Product catalog with category filtering and search
-- **Product Detail** - Detailed product information with related products
+- **Product Detail** - Detailed product information, ratings, and review section
 - **Categories** - Browse all product categories
 - **About** - Company history, mission, vision, and timeline
+- **Forgot Password / Reset Password** - OTP-based account recovery
 - **404** - Custom not found page
+
+### Admin Features
+- Admin login (JWT-protected routes)
+- Dashboard KPI cards and trend charts
+- Product management
+- Request management
 
 ### Components
 - **Header** - Responsive navigation with search functionality
@@ -28,34 +44,40 @@
 - Smooth animations and transitions
 - Modern glassmorphism effects
 - Professional color palette
-- Google Fonts (Inter, Outfit)
+- Google Fonts (Playfair Display, Montserrat, Inter)
+- Nursery brand palette (forest green, sage, warm cream)
 
-## 🛠️ Tech Stack
+### Email Experience
+- Branded OTP email template aligned with theme tokens
+- High-contrast OTP display for readability in email clients
+- Resilient mail handling to avoid API crashes on SMTP issues
 
-- **React** 19.2.0
-- **React Router DOM** 7.13.0
-- **Vite** 7.2.4
-- **CSS3** with CSS Variables
+## Tech Stack
 
-## 📦 Installation
+- Frontend: React + Vite + React Router
+- Backend: Node.js + Express + Mongoose
+- Database: MongoDB
+- Auth: Sessions (user) + JWT (admin)
+- Email: Nodemailer + Gmail SMTP
+
+## Installation
 
 ```bash
-# Install dependencies
+# Frontend
+cd frontend
 npm install
-
-# Run development server
 npm run dev
 
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+# Backend (new terminal)
+cd backend
+npm install
+node server.js
 ```
 
-## 🌐 Development Server
+## Local URLs
 
-The development server runs on `http://localhost:5173` (or the next available port).
+- Frontend: http://localhost:5173 (or next available Vite port)
+- Backend: http://localhost:5000
 
 ## 📁 Project Structure
 
@@ -113,20 +135,39 @@ sekar-industries/
 └── vite.config.js
 ```
 
-## 🎨 Design Features
+## Environment Variables (Backend)
+
+Add these in backend/.env:
+
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/sekar-industries
+SESSION_SECRET=your-session-secret
+JWT_SECRET=your-jwt-secret
+NODE_ENV=development
+EMAIL_USER=your-gmail-address
+EMAIL_PASS=your-16-char-gmail-app-password
+EMAIL_FROM="Sekar Industries <your-gmail-address>"
+```
+
+## Notes
+
+- For Gmail SMTP, use an App Password (not your normal Gmail password).
+- If forgot-password mail fails, backend logs include SMTP error details.
+- In current behavior, API no longer returns `dev_otp`.
+
+## Design Features
 
 ### Color Palette
-- **Primary**: #1a5f7a (Industrial Blue)
-- **Secondary**: #f39c12 (Warm Orange)
-- **Accent**: #16a085 (Teal Green)
-- **Success**: #27ae60
-- **Warning**: #f39c12
-- **Danger**: #e74c3c
+- **Primary**: #2D473E (Deep Forest Green)
+- **Secondary**: #C5CDC1 (Soft Sage Green)
+- **Accent**: #F7F6F2 (Warm Cream)
+- **Text**: #333333 (Dark Charcoal)
 
 ### Typography
-- **Headings**: Outfit (Google Fonts)
-- **Body**: Inter (Google Fonts)
-- **Monospace**: Fira Code
+- **Logo**: Playfair Display
+- **Headings**: Montserrat
+- **Body**: Inter
 
 ### Key Interactions
 - Smooth hover effects on cards
@@ -179,16 +220,13 @@ The search bar provides:
 - **Saturday**: 9:00 AM - 6:00 PM
 - **Sunday**: 10:00 AM - 2:00 PM
 
-## 🚧 Future Enhancements
+## Future Enhancements
 
-- Backend API integration
-- User authentication
+- Email queue/retry strategy for OTP delivery
+- OTP throttling and abuse protection hardening
 - Shopping cart functionality
 - Order management
-- Admin dashboard
 - Payment gateway integration
-- Product reviews and ratings
-- Email notifications
 - Advanced filtering and sorting
 
 ## 📄 License
