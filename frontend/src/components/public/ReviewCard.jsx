@@ -16,8 +16,15 @@ const ReviewCard = ({ review }) => {
     date,
     reviewText,
     images = [],
+    ownerReply = '',
     helpfulCount = 0
   } = review;
+
+  const displayName = (() => {
+    const parts = (userName || '').trim().split(/\s+/);
+    if (parts.length < 2) return parts[0] || 'Anonymous';
+    return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
+  })();
   
   const formattedDate = new Date(date).toLocaleDateString('en-IN', {
     year: 'numeric',
@@ -36,13 +43,13 @@ const ReviewCard = ({ review }) => {
         <div className="review-user">
           <div className="user-avatar">
             {userAvatar ? (
-              <img src={userAvatar} alt={userName} />
+              <img src={userAvatar} alt={displayName} />
             ) : (
-              <span>{userName?.charAt(0).toUpperCase()}</span>
+              <span>{displayName?.charAt(0).toUpperCase()}</span>
             )}
           </div>
           <div className="user-info">
-            <div className="user-name">{userName}</div>
+            <div className="user-name">{displayName}</div>
             {isVerified && (
               <div className="verified-badge">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -96,6 +103,13 @@ const ReviewCard = ({ review }) => {
           Helpful ({helpfulCount})
         </button>
       </div>
+
+      {ownerReply && (
+        <div style={{ marginTop: '0.75rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem' }}>
+          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.85rem' }}>Owner Reply</p>
+          <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem' }}>{ownerReply}</p>
+        </div>
+      )}
       
       {/* Image Lightbox */}
       {selectedImage && (

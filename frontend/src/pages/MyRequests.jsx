@@ -161,8 +161,15 @@ const MyRequests = () => {
                                             <tbody>
                                                 {requests.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={5} style={{ textAlign: 'center', color: 'var(--admin-text-light)' }}>
-                                                            No requests found for this filter.
+                                                        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--admin-text-light)' }}>
+                                                            {statusFilter === 'all' ? (
+                                                                <span>
+                                                                    You haven&apos;t made any requests yet.{' '}
+                                                                    <Link to="/products" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Browse Products →</Link>
+                                                                </span>
+                                                            ) : (
+                                                                'No requests found for this filter.'
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 ) : (

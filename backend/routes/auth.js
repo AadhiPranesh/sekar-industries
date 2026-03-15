@@ -239,6 +239,76 @@ router.get('/verify-admin', verifyToken, (req, res) => {
     });
 });
 
+// Forgot password — generate OTP and store on user document
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email || !/\S+@\S+\.\S+/.test(email)) {
+            return res.status(400).json({ success: false, message: 'Valid email is required' });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+        // Always respond with success to avoid revealing whether an email exists
+        if (!user) {
+            return res.json({ success: true, message: 'If this email is registered, an OTP has been sent.' });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        user.resetPasswordOtp = otp;
+        user.resetPasswordExpires = expires;
+        await user.save();
+
+        // Log OTP to server console (no email service configured)
+        console.log(`[PASSWORD RESET] OTP for ${user.email}: ${otp} (expires in 10 min)`);
+
+        return res.json({
+            success: true,
+            message: 'OTP has been sent to your email.',
+            ...(process.env.NODE_ENV !== 'production' && { dev_otp: otp })
+        });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        return res.status(500).json({ success: false, message: 'Error processing request. Please try again.' });
+    }
+});
+
+// Reset password — verify OTP and update password
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, otp, password } = req.body;
+
+        if (!email || !otp || !password) {
+            return res.status(400).json({ success: false, message: 'Email, OTP and new password are required' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase().trim(),
+            resetPasswordOtp: otp,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired OTP. Please request a new one.' });
+        }
+
+        user.password = password;
+        user.resetPasswordOtp = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        return res.json({ success: true, message: 'Password reset successfully. You can now login.' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        return res.status(500).json({ success: false, message: 'Error resetting password. Please try again.' });
+    }
+});
+
 // Logout route
 router.post('/logout', (req, res) => {
     req.session.destroy((err) => {

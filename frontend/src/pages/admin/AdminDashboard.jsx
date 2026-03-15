@@ -2,25 +2,45 @@
  * Admin Dashboard - Today's View
  * Simple status board showing today's business snapshot
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SalesTrendGraph from '../../components/admin/SalesTrendGraph';
+import { adminApi } from '../../api/adminApi';
 
 const AdminDashboard = () => {
-    // TODO: Replace with API fetch
-    const [stats] = useState({
-        todaySales: 45600,
-        productsSold: 23,
-        lowStockCount: 4,
+    const [todayRequestCount, setTodayRequestCount] = useState(null);
+
+    useEffect(() => {
+        adminApi.getProductRequests().then((data) => {
+            const todayStr = new Date().toDateString();
+            const count = (data.requests || []).filter(
+                (r) => new Date(r.createdAt).toDateString() === todayStr
+            ).length;
+            setTodayRequestCount(count);
+        }).catch(() => {});
+    }, []);
+
+    const [stats, setStats] = useState({
+        todaySales: 0,
+        productsSold: 0,
+        lowStockCount: 0,
         lastUpdated: new Date()
     });
+    const [lowStockProducts, setLowStockProducts] = useState([]);
 
-    const [lowStockProducts] = useState([
-        { id: 'prod-003', name: 'Woven Sleeping Mat', stock: 5, category: 'Woven & Folding' },
-        { id: 'prod-008', name: 'Steel Frame Folding Chair', stock: 8, category: 'Steel Furniture' },
-        { id: 'prod-016', name: 'Oval Top Dining Set (Deluxe)', stock: 2, category: 'Dining Sets' },
-        { id: 'prod-014', name: 'Oval Top Dining Set (6 Seater)', stock: 5, category: 'Dining Sets' }
-    ]);
+    useEffect(() => {
+        adminApi.getDashboardStats().then((res) => {
+            if (res.success) {
+                setStats({
+                    todaySales: res.stats.todaySales || 0,
+                    productsSold: res.stats.productsSold || 0,
+                    lowStockCount: res.stats.lowStockCount || 0,
+                    lastUpdated: new Date()
+                });
+                setLowStockProducts(res.stats.lowStockProducts || []);
+            }
+        }).catch(() => {});
+    }, []);
 
 
     const formatCurrency = (amount) => {
@@ -90,6 +110,20 @@ const AdminDashboard = () => {
                         <p className="stat-label">Low Stock Alert</p>
                         <p className="stat-value">{stats.lowStockCount}</p>
                         <p className="stat-detail">Need attention</p>
+                    </div>
+                </div>
+
+                <div className="admin-stat-card stat-primary">
+                    <div className="stat-icon">
+                        <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                    <div className="stat-content">
+                        <p className="stat-label">Today&apos;s Requests</p>
+                        <p className="stat-value">{todayRequestCount ?? '...'}</p>
+                        <p className="stat-detail">Received today</p>
                     </div>
                 </div>
             </div>

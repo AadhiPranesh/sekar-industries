@@ -63,22 +63,53 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
     if (!validateForm()) return;
     
     setSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const reviewData = {
-      rating,
-      reviewText: reviewText.trim(),
-      images: images.map(img => img.preview), // In production, upload to server first
-      productData,
-      date: new Date().toISOString()
-    };
-    
-    setSubmitting(false);
-    
-    if (onSubmit) {
-      onSubmit(reviewData);
+
+    try {
+      const payload = {
+        billNumber: productData?.billNumber,
+        productId: productData?.productId,
+        rating,
+        reviewText: reviewText.trim(),
+        images: images.map(img => img.preview)
+      };
+
+      const response = await fetch('http://localhost:5000/api/reviews/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result?.success) {
+        setErrors((prev) => ({
+          ...prev,
+          submit: result?.message || 'Failed to submit review. Please try again.'
+        }));
+        return;
+      }
+
+      const reviewData = {
+        rating,
+        reviewText: reviewText.trim(),
+        images: images.map(img => img.preview),
+        productData,
+        date: new Date().toISOString()
+      };
+
+      if (onSubmit) {
+        onSubmit(reviewData);
+      }
+    } catch {
+      setErrors((prev) => ({
+        ...prev,
+        submit: 'Failed to submit review. Please try again.'
+      }));
+    } finally {
+      setSubmitting(false);
     }
   };
   
@@ -200,6 +231,7 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
             )}
           </button>
         </div>
+        {errors.submit && <span className="error-text">{errors.submit}</span>}
       </form>
     </div>
   );

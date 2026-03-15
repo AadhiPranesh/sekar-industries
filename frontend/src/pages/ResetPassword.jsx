@@ -78,38 +78,32 @@ const ResetPassword = () => {
         setMessage('');
 
         try {
-            // TODO: Replace with actual API call
-            // const response = await fetch('http://localhost:5000/api/auth/reset-password', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         email: formData.email,
-            //         otp: formData.otp,
-            //         password: formData.password
-            //     })
-            // });
-            // const data = await response.json();
-
-            // Simulate API call
-            setTimeout(() => {
-                console.log('Reset password attempt:', {
+            const res = await fetch('http://localhost:5000/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     email: formData.email,
-                    otp: formData.otp
+                    otp: formData.otp,
+                    password: formData.password
+                })
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Failed to reset password');
+            }
+
+            setMessage('Password reset successful! Redirecting to login...');
+            setTimeout(() => {
+                navigate('/login', {
+                    state: { message: 'Password reset successful. Please login with your new password.' }
                 });
-                setIsLoading(false);
-                setMessage('Password reset successful! Redirecting to login...');
-                
-                // Navigate to login after success
-                setTimeout(() => {
-                    navigate('/login', { 
-                        state: { message: 'Password reset successful. Please login with your new password.' }
-                    });
-                }, 2000);
-            }, 1500);
+            }, 2000);
 
         } catch (err) {
+            setErrors({ form: err.message || 'Failed to reset password. Please try again.' });
+        } finally {
             setIsLoading(false);
-            setErrors({ form: 'Failed to reset password. Please try again.' });
         }
     };
 
@@ -120,11 +114,17 @@ const ResetPassword = () => {
         }
 
         try {
-            // TODO: Call resend OTP API
-            setMessage('New OTP sent to your email');
-            setTimeout(() => setMessage(''), 3000);
+            const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email })
+            });
+            const data = await res.json();
+            const otp = data.dev_otp ? ` (Dev OTP: ${data.dev_otp})` : '';
+            setMessage(`New OTP sent to your email.${otp}`);
+            setTimeout(() => setMessage(''), 5000);
         } catch (err) {
-            setErrors({ form: 'Failed to resend OTP' });
+            setErrors({ form: 'Failed to resend OTP. Please try again.' });
         }
     };
 

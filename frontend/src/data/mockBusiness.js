@@ -16,7 +16,7 @@ export const mockBusinessInfo = {
     owner: 'Mr. Sekar Kumar',
     contact: {
         address: '123 Industrial Avenue, Commerce District, Chennai - 600001',
-        phone: '+91 98765 43210',
+        phone: '+91 7708 644 431',
         alternatePhone: '+91 44 2345 6789',
         email: 'info@sekarindustries.com',
         website: 'www.sekarindustries.com'
@@ -29,7 +29,7 @@ export const mockBusinessInfo = {
     socialMedia: {
         facebook: 'https://facebook.com/sekarindustries',
         instagram: 'https://instagram.com/sekarindustries',
-        whatsapp: '+919876543210'
+        whatsapp: '+917708644431'
     },
     stats: {
         yearsInBusiness: 29,

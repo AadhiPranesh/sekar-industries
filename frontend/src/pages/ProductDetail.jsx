@@ -22,33 +22,11 @@ const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [reviewsError, setReviewsError] = useState('');
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-    const [reviews, setReviews] = useState([
-        // Sample reviews - In production, fetch from API based on product ID
-        {
-            id: 1,
-            userName: 'Rajesh Kumar',
-            rating: 5,
-            isVerified: true,
-            date: '2024-01-15',
-            reviewText: 'Excellent quality product! Works perfectly in our industrial setup. Highly recommended.',
-            images: [
-                'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400'
-            ],
-            helpfulCount: 12
-        },
-        {
-            id: 2,
-            userName: 'Priya Sharma',
-            rating: 4,
-            isVerified: true,
-            date: '2024-01-10',
-            reviewText: 'Good value for money. Installation was straightforward and product quality is solid.',
-            images: [],
-            helpfulCount: 8
-        }
-    ]);
+    const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -73,16 +51,64 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id]);
 
-    const handleReviewSubmitted = (newReview) => {
-        // Add new review to the list
-        const reviewToAdd = {
-            id: reviews.length + 1,
-            userName: 'You', // In production, get from auth
-            ...newReview,
-            helpfulCount: 0
+    useEffect(() => {
+        const fetchReviews = async () => {
+            setReviewsLoading(true);
+            setReviewsError('');
+            try {
+                const response = await fetch(`http://localhost:5000/api/reviews?productId=${encodeURIComponent(id)}`);
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data?.success) {
+                    throw new Error(data?.message || 'Failed to load reviews');
+                }
+
+                const mapped = (data.reviews || []).map((item) => ({
+                    id: item._id,
+                    userName: item.userName,
+                    rating: item.rating,
+                    isVerified: true,
+                    date: item.createdAt,
+                    reviewText: item.reviewText,
+                    images: item.images || [],
+                    ownerReply: item.ownerReply || '',
+                    helpfulCount: 0
+                }));
+                setReviews(mapped);
+            } catch (loadError) {
+                setReviewsError(loadError.message || 'Failed to load reviews');
+                setReviews([]);
+            } finally {
+                setReviewsLoading(false);
+            }
         };
-        
-        setReviews([reviewToAdd, ...reviews]);
+
+        fetchReviews();
+    }, [id]);
+
+    const handleReviewSubmitted = async () => {
+        setIsReviewModalOpen(false);
+        setReviewsError('Your review was submitted and is pending admin approval.');
+        try {
+            const response = await fetch(`http://localhost:5000/api/reviews?productId=${encodeURIComponent(id)}`);
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data?.success) {
+                const mapped = (data.reviews || []).map((item) => ({
+                    id: item._id,
+                    userName: item.userName,
+                    rating: item.rating,
+                    isVerified: true,
+                    date: item.createdAt,
+                    reviewText: item.reviewText,
+                    images: item.images || [],
+                    ownerReply: item.ownerReply || '',
+                    helpfulCount: 0
+                }));
+                setReviews(mapped);
+            }
+        } catch {
+            // non-blocking refresh failure
+        }
     };
 
     const breadcrumbItems = product ? [
@@ -218,9 +244,21 @@ const ProductDetail = () => {
                                         <Icons.Email />
                                         Request Quote
                                     </button>
-                                    <a href="tel:+919876543210" className="btn btn-secondary btn-lg">
+                                    <a href="tel:+917708644431" className="btn btn-secondary btn-lg">
                                         <Icons.Phone />
                                         Call Now
+                                    </a>
+                                    <a
+                                        href={`https://wa.me/?text=${encodeURIComponent(`Check out ${product.name} at Sekar Industries: ${window.location.href}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-secondary btn-lg"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.862L.057 23.25a.75.75 0 00.918.918l5.451-1.472A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.698-.508-5.24-1.396l-.374-.22-3.884 1.05 1.056-3.808-.242-.388A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                                        </svg>
+                                        Share on WhatsApp
                                     </a>
                                 </div>
                             </div>
@@ -245,7 +283,10 @@ const ProductDetail = () => {
                         </div>
                         
                         <ReviewSummary reviews={reviews} />
-                        <ReviewList reviews={reviews} />
+                        {reviewsError && (
+                            <p style={{ margin: '0.75rem 0', color: 'var(--primary)' }}>{reviewsError}</p>
+                        )}
+                        <ReviewList reviews={reviews} loading={reviewsLoading} />
                     </div>
                 </section>
 
