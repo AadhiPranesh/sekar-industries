@@ -9,32 +9,16 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { mockProducts } from '../../data/mockProducts';
 import QuoteModal from './QuoteModal';
 
-// Use product-specific local images from frontend/public/images/products
-const getProductImage = (productId) => `/images/products/${productId}.jpg`;
-
 const getMockImageByName = (productName) => {
     const match = mockProducts.find((item) => item.name === productName);
     return match?.image || null;
 };
 
-const handleImageError = (e, productId, category, productName) => {
-    const currentStage = e.currentTarget.dataset.stage || 'jpg';
+const getProductImage = (productName, category) => {
+    return getMockImageByName(productName) || getFallbackImage(category);
+};
 
-    if (currentStage === 'jpg') {
-        e.currentTarget.dataset.stage = 'png';
-        e.currentTarget.src = `/images/products/${productId}.png`;
-        return;
-    }
-
-    if (currentStage === 'png') {
-        const mockImage = getMockImageByName(productName);
-        if (mockImage) {
-            e.currentTarget.dataset.stage = 'mock';
-            e.currentTarget.src = mockImage;
-            return;
-        }
-    }
-
+const handleImageError = (e, category) => {
     e.currentTarget.src = getFallbackImage(category);
 };
 
@@ -238,10 +222,10 @@ const ComboOffers = () => {
                                 <div className="combo-product-item">
                                     <div className="combo-product-image-wrap">
                                         <img
-                                            src={getProductImage(combo.product_1_id)}
+                                            src={getProductImage(combo.product_1, combo.product_1_category)}
                                             alt={combo.product_1}
                                             className="combo-product-image"
-                                            onError={(e) => handleImageError(e, combo.product_1_id, combo.product_1_category, combo.product_1)}
+                                            onError={(e) => handleImageError(e, combo.product_1_category)}
                                         />
                                         <span className="product-category-badge">{combo.product_1_category}</span>
                                     </div>
@@ -261,10 +245,10 @@ const ComboOffers = () => {
                                 <div className="combo-product-item">
                                     <div className="combo-product-image-wrap">
                                         <img
-                                            src={getProductImage(combo.product_2_id)}
+                                            src={getProductImage(combo.product_2, combo.product_2_category)}
                                             alt={combo.product_2}
                                             className="combo-product-image"
-                                            onError={(e) => handleImageError(e, combo.product_2_id, combo.product_2_category, combo.product_2)}
+                                            onError={(e) => handleImageError(e, combo.product_2_category)}
                                         />
                                         <span className="product-category-badge">{combo.product_2_category}</span>
                                     </div>
