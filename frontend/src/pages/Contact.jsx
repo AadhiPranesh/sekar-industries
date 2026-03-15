@@ -82,19 +82,18 @@ const Contact = () => {
         setSuccessMessage('');
 
         try {
-            // Simulate sending email - in production, replace with actual backend call
-            const priority = parseInt(formData.quantity) >= 10 ? 'HIGH PRIORITY' : 'NORMAL';
-            console.log(`Contact form submitted (${priority}):`, {
-                ...formData,
-                priority,
-                isWholesale: formData.purchaseType === 'wholesale'
+            const res = await fetch('http://localhost:5000/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
             });
-            
-            setSuccessMessage(
-                parseInt(formData.quantity) >= 10 
-                    ? '🎉 Thank you for your bulk inquiry! Our sales team will prioritize your request and contact you within 24 hours.' 
-                    : 'Thank you for your message! We will get back to you soon.'
-            );
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Error sending message. Please try again.');
+            }
+
+            setSuccessMessage(data.message);
             setFormData({
                 name: '',
                 email: '',
@@ -105,11 +104,9 @@ const Contact = () => {
                 purchaseType: 'retail'
             });
 
-            // Clear success message after 5 seconds
-            setTimeout(() => setSuccessMessage(''), 5000);
+            setTimeout(() => setSuccessMessage(''), 6000);
         } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Error sending message. Please try again.');
+            alert(error.message || 'Error sending message. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -126,9 +123,9 @@ const Contact = () => {
         {
             icon: Icons.Phone,
             title: 'Call Us',
-            content: '+91 98765 43210',
+            content: '+91 7708 644 431',
             secondaryContent: '+91 42 2345 6789',
-            link: 'tel:+919876543210',
+            link: 'tel:+917708644431',
             secondaryLink: 'tel:+914223456789',
             type: 'phone'
         },

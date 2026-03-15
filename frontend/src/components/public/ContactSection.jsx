@@ -40,7 +40,7 @@ const ContactSection = ({ businessInfo }) => {
                                 </div>
                                 <div className="contact-item-content">
                                     <h4>Call Us</h4>
-                                    <p>{contact.phone || '+91 98765 43210'}</p>
+                                    <p>{contact.phone || '+91 7708 644 431'}</p>
                                     <p>{contact.alternatePhone || '+91 44 2345 6789'}</p>
                                 </div>
                             </div>

@@ -120,7 +120,7 @@ const ReviewModal = ({ isOpen, onClose, productId, onReviewSubmitted }) => {
               </div>
             </div>
           ) : step === 1 ? (
-            <BillVerification onVerified={handleVerified} />
+            <BillVerification productId={productId} onVerified={handleVerified} />
           ) : null}
           
           {step === 2 && verifiedProduct && (

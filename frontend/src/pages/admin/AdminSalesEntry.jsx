@@ -3,25 +3,58 @@
  * Simple form to record offline shop sales
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { adminApi } from '../../api/adminApi';
 
 const AdminSalesEntry = () => {
-    // TODO: Replace with API fetch
+    // Full product catalog — matches mockProducts.js
     const [products] = useState([
-        { id: 'prod-001', name: 'Niwar Folding Cot', price: 2500, stock: 45 },
-        { id: 'prod-002', name: 'Heavy Duty Folding Cot', price: 3200, stock: 32 },
-        { id: 'prod-005', name: 'S-Type Visitor Chair', price: 1850, stock: 55 },
-        { id: 'prod-013', name: 'Oval Top Dining Set', price: 25500, stock: 8 }
+        { id: 'prod-001', name: 'Orange Niwar Folding Bed', price: 2800 },
+        { id: 'prod-002', name: 'Single Niwar Folding Bed', price: 2500 },
+        { id: 'prod-003', name: 'Polished Niwar Folding Bed', price: 3200 },
+        { id: 'prod-004', name: 'Blue Niwar Folding Bed', price: 2600 },
+        { id: 'prod-005', name: 'Wire Netted S Type Chair', price: 1850 },
+        { id: 'prod-006', name: 'Low Back S Type Chair', price: 1650 },
+        { id: 'prod-007', name: 'S Type Chair', price: 1750 },
+        { id: 'prod-008', name: 'Rolling Chair For Office', price: 3200 },
+        { id: 'prod-009', name: 'Mild Steel Movable Walker', price: 2800 },
+        { id: 'prod-010', name: 'S Type Visitor Chair', price: 1800 },
+        { id: 'prod-011', name: '2 Seater Teak Wood Dining Table Set', price: 12500 },
+        { id: 'prod-012', name: 'Polished Teak Wood Dining Table Set', price: 18500 },
+        { id: 'prod-013', name: 'Maharaja Teak Wood Dining Table Set', price: 28500 },
+        { id: 'prod-014', name: 'Antique Teak Wood Chair', price: 4500 },
+        { id: 'prod-015', name: 'S Type Steel Chair', price: 1900 },
+        { id: 'prod-016', name: 'Rectangular Teak Wood Table', price: 9800 },
+        { id: 'prod-017', name: 'Green Niwar Folding Bed', price: 2700 },
+        { id: 'prod-018', name: 'Floral Printed Folding Bed', price: 2900 },
+        { id: 'prod-019', name: 'Folding Bed Niwar', price: 2400 },
+        { id: 'prod-020', name: 'Folding Cot Bed', price: 2300 },
+        { id: 'prod-021', name: 'Single Folding Steel Cot', price: 2600 },
+        { id: 'prod-022', name: 'Foldable Single Cot', price: 2200 },
+        { id: 'prod-023', name: 'Foldable Double Cot', price: 3500 },
     ]);
     const [selectedProduct, setSelectedProduct] = useState('');
+    const [billNumber, setBillNumber] = useState('');
+    const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
     const [quantity, setQuantity] = useState('');
     const [amount, setAmount] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
-    // TODO: Replace with API fetch
-    const [recentSales] = useState([
-        { id: 1, product: 'S-Type Visitor Chair', quantity: 4, amount: 7400, time: '2:45 PM' },
-        { id: 2, product: 'Niwar Folding Cot', quantity: 2, amount: 5000, time: '1:20 PM' }
-    ]);
+    const [error, setError] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [recentSales, setRecentSales] = useState([]);
+
+    const loadRecentSales = async () => {
+        try {
+            const response = await adminApi.getRecentSales(10);
+            setRecentSales(response.sales || []);
+        } catch {
+            setRecentSales([]);
+        }
+    };
+
+    useEffect(() => {
+        loadRecentSales();
+    }, []);
 
     const handleProductSelect = (productId) => {
         setSelectedProduct(productId);
@@ -41,19 +74,48 @@ const AdminSalesEntry = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Submit to API
-        console.log({ selectedProduct, quantity, amount });
+        setError('');
 
-        // Show success message
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+        if (!billNumber.trim()) {
+            setError('Bill number is required.');
+            return;
+        }
 
-        // Reset form
-        setSelectedProduct('');
-        setQuantity('');
-        setAmount('');
+        const product = products.find((p) => p.id === selectedProduct);
+        if (!product) {
+            setError('Please select a product.');
+            return;
+        }
+
+        setSaving(true);
+
+        try {
+            await adminApi.createSale({
+                billNumber,
+                productId: product.id,
+                productName: product.name,
+                quantity: Number(quantity),
+                amount: Number(amount),
+                saleDate
+            });
+
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
+
+            setSelectedProduct('');
+            setBillNumber('');
+            setQuantity('');
+            setAmount('');
+            setSaleDate(new Date().toISOString().split('T')[0]);
+
+            await loadRecentSales();
+        } catch (saveError) {
+            setError(saveError.message || 'Failed to record sale.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const selectedProductData = products.find(p => p.id === selectedProduct);
@@ -84,9 +146,44 @@ const AdminSalesEntry = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="admin-sales-form">
-                    {/* Step 1: Select Product */}
+                    {error && (
+                        <div className="error-message-banner" style={{ marginBottom: '1rem' }}>
+                            {error}
+                        </div>
+                    )}
+
                     <div className="form-step">
                         <div className="form-step-number">1</div>
+                        <div className="form-step-content">
+                            <label className="form-label">Bill Number (manual entry)</label>
+                            <input
+                                className="form-input form-input-lg"
+                                value={billNumber}
+                                onChange={(e) => setBillNumber(e.target.value.toUpperCase())}
+                                placeholder="e.g., SK-2026-001"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-step">
+                        <div className="form-step-number">2</div>
+                        <div className="form-step-content">
+                            <label className="form-label">Sale Date</label>
+                            <input
+                                type="date"
+                                className="form-input form-input-lg"
+                                value={saleDate}
+                                onChange={(e) => setSaleDate(e.target.value)}
+                                max={new Date().toISOString().split('T')[0]}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Step 1: Select Product */}
+                    <div className="form-step">
+                        <div className="form-step-number">3</div>
                         <div className="form-step-content">
                             <label className="form-label">Which product was sold?</label>
                             <select
@@ -108,7 +205,7 @@ const AdminSalesEntry = () => {
                     {/* Step 2: Enter Quantity */}
                     {selectedProduct && (
                         <div className="form-step">
-                            <div className="form-step-number">2</div>
+                            <div className="form-step-number">4</div>
                             <div className="form-step-content">
                                 <label className="form-label">How many were sold?</label>
                                 <div className="quantity-input-group">
@@ -155,7 +252,7 @@ const AdminSalesEntry = () => {
                     {/* Step 3: Enter Amount */}
                     {quantity && (
                         <div className="form-step">
-                            <div className="form-step-number">3</div>
+                            <div className="form-step-number">5</div>
                             <div className="form-step-content">
                                 <label className="form-label">Total amount received</label>
                                 <div className="amount-input-group">
@@ -205,18 +302,26 @@ const AdminSalesEntry = () => {
                             <thead>
                                 <tr>
                                     <th>Time</th>
+                                    <th>Bill #</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
+                                    <th>Review Status</th>
                                     <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {recentSales.map((sale) => (
-                                    <tr key={sale.id}>
-                                        <td>{sale.time}</td>
-                                        <td className="font-semibold">{sale.product}</td>
+                                    <tr key={sale._id}>
+                                        <td>{new Date(sale.saleDate || sale.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</td>
+                                        <td>{sale.billNumber}</td>
+                                        <td className="font-semibold">{sale.productName}</td>
                                         <td>{sale.quantity}</td>
-                                        <td className="text-success">₹{sale.amount.toLocaleString('en-IN')}</td>
+                                        <td>
+                                            <span className={`status-badge ${sale.hasBeenReviewed ? 'status-success' : 'status-warning'}`}>
+                                                {sale.hasBeenReviewed ? 'Used' : 'Not Used'}
+                                            </span>
+                                        </td>
+                                        <td className="text-success">₹{Number(sale.amount || 0).toLocaleString('en-IN')}</td>
                                     </tr>
                                 ))}
                             </tbody>

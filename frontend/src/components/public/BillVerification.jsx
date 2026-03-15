@@ -4,48 +4,46 @@ import { useState } from 'react';
  * BillVerification - First step in review flow
  * User must enter valid bill number before writing review
  */
-const BillVerification = ({ onVerified }) => {
+const BillVerification = ({ productId, onVerified }) => {
   const [billNumber, setBillNumber] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const [verifiedData, setVerifiedData] = useState(null);
+  const [showContactHelp, setShowContactHelp] = useState(false);
   
-  // Simulate backend verification
   const handleVerify = async (e) => {
     e.preventDefault();
     setError('');
+    setShowContactHelp(false);
     setVerifying(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock validation - In production, call actual API
-    const validBills = [
-      'SK-2024-001234',
-      'SK-2024-001235', 
-      'SK-2024-001236',
-      'SK-2023-005678'
-    ];
-    
-    if (validBills.includes(billNumber.toUpperCase())) {
-      // Mock product data from bill
-      const mockProduct = {
-        billNumber: billNumber.toUpperCase(),
-        productName: 'Industrial Steel Office Desk',
-        purchaseDate: purchaseDate || '2024-01-15',
-        amount: '₹45,000'
-      };
-      
-      setVerifiedData(mockProduct);
-      setVerifying(false);
-      
-      // Notify parent component
-      if (onVerified) {
-        onVerified(mockProduct);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/reviews/verify-bill', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ billNumber, productId })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setError(data?.message || 'Invalid bill number. Please check and try again.');
+        if (response.status === 404) {
+          setShowContactHelp(true);
+        }
+        return;
       }
-    } else {
-      setError('Invalid bill number. Please check and try again.');
+
+      setVerifiedData(data.product);
+      if (onVerified) {
+        onVerified(data.product);
+      }
+    } catch {
+      setError('Unable to verify bill right now. Please try again.');
+    } finally {
       setVerifying(false);
     }
   };
@@ -77,18 +75,6 @@ const BillVerification = ({ onVerified }) => {
               <small>Find this on your purchase invoice</small>
             </div>
             
-            <div className="form-group">
-              <label htmlFor="purchaseDate">Purchase Date (Optional)</label>
-              <input
-                id="purchaseDate"
-                type="date"
-                value={purchaseDate}
-                onChange={(e) => setPurchaseDate(e.target.value)}
-                disabled={verifying}
-                max={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-            
             {error && (
               <div className="verification-error">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -96,6 +82,20 @@ const BillVerification = ({ onVerified }) => {
                   <path d="M10 6V11M10 14V14.5" stroke="#EF4444" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
                 <span>{error}</span>
+              </div>
+            )}
+
+            {showContactHelp && (
+              <div style={{ marginBottom: '1rem' }}>
+                <a
+                  href={`https://wa.me/917708644431?text=${encodeURIComponent(`Hi, my bill number ${billNumber.toUpperCase()} is not found. Please check and add it for review.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                  style={{ display: 'inline-block', textDecoration: 'none' }}
+                >
+                  Contact on WhatsApp
+                </a>
               </div>
             )}
             
@@ -116,7 +116,7 @@ const BillVerification = ({ onVerified }) => {
           </form>
           
           <div className="verification-help">
-            <p>💡 Can't find your bill number? Contact our support team</p>
+            <p>Tip: Enter bill number exactly as on invoice.</p>
           </div>
         </>
       ) : (

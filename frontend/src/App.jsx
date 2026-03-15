@@ -23,6 +23,7 @@ import AdminProductHealth from './pages/admin/AdminProductHealth';
 import AdminPrediction from './pages/admin/AdminPrediction';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminRequests from './pages/admin/AdminRequests';
+import AdminReviews from './pages/admin/AdminReviews';
 // Components
 import ScrollToTop from './components/common/ScrollToTop';
 import WhatsAppButton from './components/common/WhatsAppButton';
@@ -54,7 +55,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="my-requests" element={<MyRequests />} />
+            <Route path="/my-requests" element={<MyRequests />} />
             <Route element={<RedirectIfAdminAuthed />}>
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
@@ -67,6 +68,7 @@ function App() {
                 <Route path="product-health" element={<AdminProductHealth />} />
                 <Route path="prediction" element={<AdminPrediction />} />
                 <Route path="requests" element={<AdminRequests />} />
+                <Route path="reviews" element={<AdminReviews />} />
                 <Route path="notifications" element={<AdminNotifications />} />
               </Route>
             </Route>

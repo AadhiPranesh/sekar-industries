@@ -8,7 +8,7 @@
  */
 
 export const API_CONFIG = {
-  USE_MOCK_DATA: true,  // Toggle for development/production
+  USE_MOCK_DATA: false,  // Toggle for development/production
   BASE_URL: 'http://localhost:5000/api',  // Future backend URL
   ML_URL: 'http://localhost:8000/ml',     // Future ML service URL
   TIMEOUT: 10000,

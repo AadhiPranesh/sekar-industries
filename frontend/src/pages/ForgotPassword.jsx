@@ -34,28 +34,28 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            // TODO: Replace with actual API call
-            // const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ email })
-            // });
-            // const data = await response.json();
+            const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
 
-            // Simulate API call
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Failed to send OTP');
+            }
+
+            const otp = data.dev_otp ? ` (Dev OTP: ${data.dev_otp})` : '';
+            setMessage(`OTP has been sent to your email. Please check your inbox.${otp}`);
+
             setTimeout(() => {
-                setIsLoading(false);
-                setMessage('OTP has been sent to your email. Please check your inbox.');
-                
-                // Navigate to reset password page after 2 seconds
-                setTimeout(() => {
-                    navigate('/reset-password', { state: { email } });
-                }, 2000);
-            }, 1500);
+                navigate('/reset-password', { state: { email } });
+            }, 2500);
 
         } catch (err) {
+            setError(err.message || 'Failed to send reset email. Please try again.');
+        } finally {
             setIsLoading(false);
-            setError('Failed to send reset email. Please try again.');
         }
     };
 
