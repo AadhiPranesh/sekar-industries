@@ -41,7 +41,7 @@ const Header = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:5000/api/requests/my/summary', {
+                const response = await fetch('https://sekar-industries.onrender.com/api/requests/my/summary', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -101,7 +101,7 @@ const Header = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/logout', {
+            const response = await fetch('https://sekar-industries.onrender.com/api/auth/logout', {
                 method: 'POST',
                 credentials: 'include'
             });

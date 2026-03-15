@@ -85,7 +85,7 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
     const quantityValue = parseInt(formData.quantity, 10);
 
     try {
-      const response = await fetch('http://localhost:5000/api/requests', {
+      const response = await fetch('https://sekar-industries.onrender.com/api/requests', {
         method: 'POST',
         credentials: 'include',
         headers: {

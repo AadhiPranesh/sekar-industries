@@ -73,7 +73,7 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
         images: images.map(img => img.preview)
       };
 
-      const response = await fetch('http://localhost:5000/api/reviews/submit', {
+      const response = await fetch('https://sekar-industries.onrender.com/api/reviews/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

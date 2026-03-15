@@ -182,7 +182,7 @@ const AdminProducts = () => {
             const uploadRes = await adminApi.uploadProductImage(file);
             const finalUrl = uploadRes.imageUrl?.startsWith('http')
                 ? uploadRes.imageUrl
-                : `http://localhost:5000${uploadRes.imageUrl}`;
+                : `https://sekar-industries.onrender.com${uploadRes.imageUrl}`;
 
             setEditForm((prev) => ({ ...prev, image: finalUrl }));
         } catch (err) {
@@ -206,7 +206,7 @@ const AdminProducts = () => {
             const uploadRes = await adminApi.uploadProductImage(file);
             const finalUrl = uploadRes.imageUrl?.startsWith('http')
                 ? uploadRes.imageUrl
-                : `http://localhost:5000${uploadRes.imageUrl}`;
+                : `https://sekar-industries.onrender.com${uploadRes.imageUrl}`;
 
             setAddForm((prev) => ({ ...prev, image: finalUrl }));
         } catch (err) {
