@@ -61,15 +61,24 @@ async function seed() {
 
         // Upsert products
         let prodInserted = 0;
+        let prodUpdated = 0;
+        let prodUnchanged = 0;
         for (const prod of products) {
             const result = await Product.updateOne(
                 { productId: prod.productId },
-                { $setOnInsert: prod },
+                { $set: prod },
                 { upsert: true }
             );
-            if (result.upsertedCount) prodInserted++;
+
+            if (result.upsertedCount) {
+                prodInserted++;
+            } else if (result.modifiedCount) {
+                prodUpdated++;
+            } else {
+                prodUnchanged++;
+            }
         }
-        console.log(`✅ Products: ${prodInserted} new, ${products.length - prodInserted} already exist`);
+        console.log(`✅ Products: ${prodInserted} new, ${prodUpdated} updated, ${prodUnchanged} unchanged`);
         console.log('🎉 Seed complete');
     } catch (err) {
         console.error('❌ Seed error:', err.message);
