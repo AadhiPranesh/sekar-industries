@@ -2,7 +2,6 @@
  * Mock Products Data
  * Real Sekar Industries Product Catalog
  */
-
 export const mockProducts = [
     // Folding Bed
      {

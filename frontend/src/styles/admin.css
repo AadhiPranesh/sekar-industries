@@ -545,6 +545,7 @@
 .prediction-chart-shell {
     width: 100%;
     height: 430px;
+    min-height: 320px;
     border: 1px solid #ebedf0;
     border-radius: 10px;
     padding: 0.4rem;
@@ -708,6 +709,7 @@
 
 .prediction-mini-legend .lg.volume { background: #9aa2af; }
 .prediction-mini-legend .lg.demand { background: #2f3a38; }
+.prediction-mini-legend .lg.previous-year { background: #2563eb; }
 .prediction-mini-legend .lg.moving { background: #d99c51; }
 .prediction-mini-legend .lg.revenue { background: #1f9d62; }
 .prediction-mini-legend .lg.market { background: #6b4ce2; }
@@ -769,9 +771,21 @@
     line-height: 1.45;
 }
 
+.prediction-data-note {
+    margin-top: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    color: #475569;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
 @media (max-width: 768px) {
     .prediction-chart-shell {
         height: 340px;
+        min-height: 280px;
     }
 
     .prediction-pill {

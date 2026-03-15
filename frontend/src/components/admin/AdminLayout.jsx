@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAdminAuth } from '../../auth/AdminAuthContext';
+import { useAdminAuth } from '../../auth/useAdminAuth';
 
 const AdminLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(true);

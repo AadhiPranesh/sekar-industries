@@ -1,0 +1,225 @@
+/**
+ * CSS Variables - Design System
+ * Nursery Brand - Earthy & Premium Theme
+ */
+
+:root {
+   /* ============================================
+     NURSERY BRAND COLORS
+     ============================================ */
+   /* Primary - Deep Forest Green */
+   --color-primary: #2D473E;
+   --color-primary-light: #3d5d52;
+   --color-primary-dark: #1d2f28;
+   --color-primary-gradient: linear-gradient(135deg, #2D473E 0%, #3d5d52 100%);
+
+   /* Secondary - Soft Sage Green */
+   --color-secondary: #C5CDC1;
+   --color-secondary-light: #d5ddd1;
+   --color-secondary-dark: #b5bdb1;
+
+   /* Accent - Warm Cream */
+   --color-accent: #F7F6F2;
+   --color-accent-light: #ffffff;
+   --color-accent-dark: #e7e6e2;
+
+   /* ============================================
+     SEMANTIC COLORS
+     ============================================ */
+   --color-success: #6B8E7F;
+   --color-success-light: #7b9e8f;
+   --color-success-bg: rgba(107, 142, 127, 0.1);
+
+   --color-warning: #D4A574;
+   --color-warning-light: #e4b584;
+   --color-warning-bg: rgba(212, 165, 116, 0.1);
+
+   --color-danger: #C17767;
+   --color-danger-light: #d18777;
+   --color-danger-bg: rgba(193, 119, 103, 0.1);
+
+   --color-info: #8B9D9A;
+   --color-info-light: #9badaa;
+   --color-info-bg: rgba(139, 157, 154, 0.1);
+
+   /* ============================================
+     NEUTRAL COLORS
+     ============================================ */
+   --color-white: #ffffff;
+   --color-black: #000000;
+
+   --color-gray-50: #F7F6F2;
+   --color-gray-100: #f0eeea;
+   --color-gray-200: #e5e3df;
+   --color-gray-300: #d0cec9;
+   --color-gray-400: #b0aea8;
+   --color-gray-500: #8f8d87;
+   --color-gray-600: #6f6d67;
+   --color-gray-700: #4f4d47;
+   --color-gray-800: #3a3832;
+   --color-gray-900: #252321;
+
+   /* ============================================
+     BACKGROUND COLORS
+     ============================================ */
+   --bg-primary: #F7F6F2;
+   --bg-secondary: #ffffff;
+   --bg-tertiary: #e5e3df;
+   --bg-dark: #2D473E;
+   --bg-dark-secondary: #1d2f28;
+   --bg-overlay: rgba(45, 71, 62, 0.5);
+   --bg-glass: rgba(247, 246, 242, 0.95);
+
+   /* ============================================
+     TEXT COLORS
+     ============================================ */
+   --text-primary: #333333;
+   --text-secondary: #4f4d47;
+   --text-tertiary: #6f6d67;
+   --text-muted: #8f8d87;
+   --text-inverse: #F7F6F2;
+   --text-link: #2D473E;
+   --text-link-hover: #3d5d52;
+
+   /* ============================================
+     TYPOGRAPHY - Nursery Brand Fonts
+     ============================================ */
+   /* Logo Font - Heavy Rounded Serif (Cooper Black style) */
+   --font-family-logo: 'Playfair Display', 'Georgia', serif;
+
+   /* Heading Font - Geometric Sans-Serif */
+   --font-family-heading: 'Montserrat', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+
+   /* Body & Navigation - Modern Clean Sans-Serif */
+   --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+
+   --font-family-mono: 'Fira Code', 'Consolas', monospace;
+
+   --font-size-xs: 0.75rem;
+   /* 12px */
+   --font-size-sm: 0.875rem;
+   /* 14px */
+   --font-size-base: 1rem;
+   /* 16px */
+   --font-size-lg: 1.125rem;
+   /* 18px */
+   --font-size-xl: 1.25rem;
+   /* 20px */
+   --font-size-2xl: 1.5rem;
+   /* 24px */
+   --font-size-3xl: 1.875rem;
+   /* 30px */
+   --font-size-4xl: 2.25rem;
+   /* 36px */
+   --font-size-5xl: 3rem;
+   /* 48px */
+   --font-size-6xl: 3.75rem;
+   /* 60px */
+
+   --font-weight-light: 300;
+   --font-weight-normal: 400;
+   --font-weight-medium: 500;
+   --font-weight-semibold: 600;
+   --font-weight-bold: 700;
+   --font-weight-extrabold: 800;
+   --font-weight-black: 900;
+
+   --line-height-tight: 1.25;
+   --line-height-normal: 1.5;
+   --line-height-relaxed: 1.75;
+
+   /* Letter spacing for headings */
+   --letter-spacing-tight: -0.025em;
+   --letter-spacing-normal: 0;
+   --letter-spacing-wide: 0.025em;
+   --letter-spacing-wider: 0.05em;
+   --letter-spacing-widest: 0.1em;
+
+   /* ============================================
+     SPACING
+     ============================================ */
+   --space-0: 0;
+   --space-1: 0.25rem;
+   /* 4px */
+   --space-2: 0.5rem;
+   /* 8px */
+   --space-3: 0.75rem;
+   /* 12px */
+   --space-4: 1rem;
+   /* 16px */
+   --space-5: 1.25rem;
+   /* 20px */
+   --space-6: 1.5rem;
+   /* 24px */
+   --space-8: 2rem;
+   /* 32px */
+   --space-10: 2.5rem;
+   /* 40px */
+   --space-12: 3rem;
+   /* 48px */
+   --space-16: 4rem;
+   /* 64px */
+   --space-20: 5rem;
+   /* 80px */
+   --space-24: 6rem;
+   /* 96px */
+
+   /* ============================================
+     BORDERS & RADIUS
+     ============================================ */
+   --border-width: 1px;
+   --border-color: #d0cec9;
+   --border-color-light: #e5e3df;
+   --border-color-dark: #b0aea8;
+
+   --radius-sm: 0.25rem;
+   /* 4px */
+   --radius-md: 0.5rem;
+   /* 8px */
+   --radius-lg: 0.75rem;
+   /* 12px */
+   --radius-xl: 1rem;
+   /* 16px */
+   --radius-2xl: 1.5rem;
+   /* 24px */
+   --radius-full: 9999px;
+
+   /* ============================================
+     SHADOWS - Softer, Natural Shadows
+     ============================================ */
+   --shadow-sm: 0 1px 2px 0 rgba(45, 71, 62, 0.05);
+   --shadow-md: 0 4px 6px -1px rgba(45, 71, 62, 0.08), 0 2px 4px -1px rgba(45, 71, 62, 0.04);
+   --shadow-lg: 0 10px 15px -3px rgba(45, 71, 62, 0.08), 0 4px 6px -2px rgba(45, 71, 62, 0.04);
+   --shadow-xl: 0 20px 25px -5px rgba(45, 71, 62, 0.08), 0 10px 10px -5px rgba(45, 71, 62, 0.03);
+   --shadow-2xl: 0 25px 50px -12px rgba(45, 71, 62, 0.15);
+   --shadow-inner: inset 0 2px 4px 0 rgba(45, 71, 62, 0.06);
+   --shadow-glow: 0 0 20px rgba(45, 71, 62, 0.2);
+
+   /* ============================================
+     TRANSITIONS
+     ============================================ */
+   --transition-fast: 150ms ease;
+   --transition-normal: 250ms ease;
+   --transition-slow: 350ms ease;
+   --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+   /* ============================================
+     Z-INDEX
+     ============================================ */
+   --z-dropdown: 100;
+   --z-sticky: 200;
+   --z-fixed: 300;
+   --z-modal-backdrop: 400;
+   --z-modal: 500;
+   --z-popover: 600;
+   --z-tooltip: 700;
+
+   /* ============================================
+     CONTAINER WIDTHS
+     ============================================ */
+   --container-sm: 640px;
+   --container-md: 768px;
+   --container-lg: 1024px;
+   --container-xl: 1280px;
+   --container-2xl: 1536px;
+}
