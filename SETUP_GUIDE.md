@@ -1,32 +1,35 @@
-# 🚀 Backend + Frontend Integration Setup Guide
+# Backend + Frontend Integration Setup Guide
 
-## ✅ Setup Complete!
+## Setup Complete
 
 Your Sekar Industries application is now connected with:
 - **Backend**: Express + Node.js + MongoDB
 - **Frontend**: React (Vite)
-- **Authentication**: Session-based (no JWT)
+- **Authentication**: Session-based (users) + JWT (admin)
+- **Email**: OTP mail via Gmail SMTP (Nodemailer)
 
 ---
 
-## 📋 What's Been Set Up
+## What's Been Set Up
 
 ### Backend (`/backend`)
 - ✅ Express server with session authentication
 - ✅ MongoDB integration
 - ✅ User model with password hashing (bcrypt)
-- ✅ Auth routes: signup, login, logout
+- Auth routes: signup, login, logout, forgot-password, reset-password
 - ✅ CORS configured for frontend
 - ✅ Server running on port 5000
+- OTP emails use branded HTML template matching project theme
 
 ### Frontend (`/frontend`)
 - ✅ Login page connected to backend API
 - ✅ Signup page connected to backend API
 - ✅ API calls with credentials for sessions
+- Forgot/reset password pages integrated with backend OTP flow
 
 ---
 
-## 🏃 Running the Application
+## Running the Application
 
 ### 1. Start MongoDB
 Make sure MongoDB is running on your machine:
@@ -41,7 +44,7 @@ mongod --version
 ### 2. Start Backend Server
 ```bash
 cd backend
-npm run dev
+node server.js
 ```
 **Backend URL**: http://localhost:5000
 
@@ -50,7 +53,7 @@ npm run dev
 cd frontend
 npm run dev
 ```
-**Frontend URL**: http://localhost:5174
+**Frontend URL**: http://localhost:5173 (or next available Vite port)
 
 ---
 
@@ -114,27 +117,39 @@ The User model stores:
 
 ---
 
-## 🌐 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/auth/signup` | Create new user account |
-| POST | `/api/auth/login` | Login user |
+| POST | `/api/auth/user/login` | Login user |
+| POST | `/api/auth/login` | Login admin |
 | POST | `/api/auth/logout` | Logout user |
+| POST | `/api/auth/forgot-password` | Generate and email OTP |
+| POST | `/api/auth/reset-password` | Reset password using OTP |
 | GET | `/api/auth/me` | Get current user info |
 | GET | `/api/health` | Server health check |
 
 ---
 
-## 🛠️ Environment Variables
+## Environment Variables
 
 **Backend `.env` file:**
 ```env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/sekar-industries
 SESSION_SECRET=sekar-industries-secret-key-change-in-production
+JWT_SECRET=change-jwt-secret
 NODE_ENV=development
+EMAIL_USER=your-gmail-address
+EMAIL_PASS=your-16-char-google-app-password
+EMAIL_FROM="Sekar Industries <your-gmail-address>"
 ```
+
+### Gmail OTP Setup Notes
+- Enable 2-Step Verification in your Gmail account.
+- Generate an App Password and use that in `EMAIL_PASS`.
+- Do not use your normal Gmail password for SMTP.
 
 ---
 
@@ -175,16 +190,27 @@ db.users.find().pretty()
 - Check MongoDB connection
 - Verify all required fields are filled
 
+### Forgot password email not received:
+- Confirm `EMAIL_USER` and `EMAIL_PASS` are correct.
+- Verify Gmail App Password is active.
+- Check backend logs for SMTP errors.
+- Check Spam/Promotions folder.
+
 ---
 
-## 📝 Next Steps
+## Notes on Current Behavior
+
+- Forgot password API no longer returns `dev_otp`.
+- OTP is available only via email.
+
+## Next Steps
 
 1. ✅ Test signup and login functionality
 2. Add user authentication state management
 3. Protect routes that require authentication
 4. Add logout functionality to frontend
 5. Display user info after login
-6. Add forgot password functionality
+6. Add request throttling and lockout policy for OTP abuse prevention
 
 ---
 

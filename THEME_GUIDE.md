@@ -90,6 +90,32 @@ The combination creates a "modern boutique" aesthetic:
 4. **Headings** - Montserrat with generous letter spacing
 5. **Shadows** - Softer, natural shadows using forest green
 6. **Backgrounds** - Warm cream primary background
+7. **OTP Email Template** - Branded password reset email using inline CSS for email client compatibility
+
+## OTP Email Theme Mapping
+
+The forgot-password OTP email follows the same brand language used in the frontend:
+
+- Header gradient uses the primary family: `#2D473E -> #3d5d52`
+- Email canvas background uses accent: `#F7F6F2`
+- OTP card border and text use dark primary tones for strong visibility
+- Supporting highlight strip uses warning accent: `#D4A574`
+
+### Why Inline CSS
+
+Most email clients do not fully support external stylesheets or advanced selectors.
+The OTP email uses inline styles to preserve visual consistency across Gmail and other clients.
+
+### OTP Readability Standard
+
+The OTP block is intentionally high contrast:
+
+- Large font size
+- Bold weight
+- Monospace digits
+- Dark text on light background
+
+This ensures the OTP remains readable even in clients that alter colors or fonts.
 
 ### Color Usage Guidelines
 
@@ -148,6 +174,11 @@ All fonts are loaded from Google Fonts:
 
 ### CSS Variables
 All colors and typography are defined as CSS custom properties in `variables.css` for easy theming and maintenance.
+
+### Backend Email Template
+
+The themed OTP email HTML is generated in `backend/routes/auth.js` inside the forgot-password mail sender.
+When updating theme colors, update both frontend CSS variables and this email template so branding remains consistent.
 
 ### Browser Support
 - Modern browsers (Chrome, Firefox, Safari, Edge)
