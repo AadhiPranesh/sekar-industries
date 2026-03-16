@@ -18,7 +18,7 @@ const BillVerification = ({ productId, onVerified }) => {
     setVerifying(true);
 
     try {
-      const response = await fetch('https://sekar-industries.onrender.com/api/reviews/verify-bill', {
+      const response = await fetch('https://sekar-industries-backend.onrender.com/api/reviews/verify-bill', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

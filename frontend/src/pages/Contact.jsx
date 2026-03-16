@@ -82,7 +82,7 @@ const Contact = () => {
         setSuccessMessage('');
 
         try {
-            const res = await fetch('https://sekar-industries.onrender.com/api/contact', {
+            const res = await fetch('https://sekar-industries-backend.onrender.com/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
