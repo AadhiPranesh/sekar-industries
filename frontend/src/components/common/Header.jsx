@@ -12,7 +12,15 @@ const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => {
+        const storedUser = localStorage.getItem('user');
+        if (!storedUser) return null;
+        try {
+            return JSON.parse(storedUser);
+        } catch {
+            return null;
+        }
+    });
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [requestSummary, setRequestSummary] = useState({ total: 0, open: 0, closed: 0 });
 
@@ -23,14 +31,6 @@ const Header = () => {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    // Check for logged-in user from localStorage
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
     }, []);
 
     useEffect(() => {
@@ -63,7 +63,7 @@ const Header = () => {
                 if (data?.success && data?.summary) {
                     setRequestSummary(data.summary);
                 }
-            } catch (error) {
+            } catch {
                 setRequestSummary({ total: 0, open: 0, closed: 0 });
             }
         };

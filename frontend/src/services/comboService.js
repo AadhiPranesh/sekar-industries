@@ -23,8 +23,7 @@ const isLocalCandidate = (value) => /localhost|127\.0\.0\.1/.test(value);
 
 const ML_BASE_URLS = [
     normalizeBaseUrl(import.meta.env.VITE_ML_BASE_URL),
-    normalizeBaseUrl(API_CONFIG.ML_URL),
-    'https://sekar-industries-backend.onrender.com'
+    normalizeBaseUrl(API_CONFIG.ML_URL)
 ].filter(Boolean)
     .filter((url, idx, arr) => arr.indexOf(url) === idx)
     .filter((url) => !isLocalCandidate(url) || isBrowserLocalhost);
@@ -57,6 +56,15 @@ const getFallbackCombos = () => {
  * Get combo offers from the ML API
  */
 export const getComboOffers = async () => {
+    // If no ML endpoint is configured for this environment, avoid network calls.
+    if (ML_BASE_URLS.length === 0) {
+        return {
+            success: true,
+            data: getFallbackCombos(),
+            message: 'Combo service not configured. Showing fallback offers.'
+        };
+    }
+
     for (const baseUrl of ML_BASE_URLS) {
         try {
             const response = await fetch(`${baseUrl}/combo`);
