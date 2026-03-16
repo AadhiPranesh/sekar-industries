@@ -29,6 +29,7 @@ const allowedOrigins = new Set([
     'http://localhost:5174',
     'http://localhost:5175',
     'https://sekar-industries-frontend.onrender.com',
+    'https://sekar-industries-3.onrender.com',
     process.env.FRONTEND_URL
 ].filter(Boolean));
 
