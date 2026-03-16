@@ -8,6 +8,7 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import Breadcrumb from '../components/common/Breadcrumb';
 import Icons from '../components/common/Icons';
+import { buildApiUrl } from '../api/config';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -82,7 +83,7 @@ const Contact = () => {
         setSuccessMessage('');
 
         try {
-            const res = await fetch('https://sekar-industries-backend.onrender.com/api/contact', {
+            const res = await fetch(buildApiUrl('/contact'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

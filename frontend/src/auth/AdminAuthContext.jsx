@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AdminAuthContext } from './adminAuthContextObject';
+import { buildApiUrl } from '../api/config';
 const ADMIN_AUTH_TOKEN_KEY = 'admin_jwt_token';
 const ADMIN_AUTH_EXPIRED_EVENT = 'admin-auth-expired';
 
@@ -17,7 +18,7 @@ export const AdminAuthProvider = ({ children }) => {
             }
 
             try {
-                const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/verify-admin', {
+                const response = await fetch(buildApiUrl('/auth/verify-admin'), {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -60,7 +61,7 @@ export const AdminAuthProvider = ({ children }) => {
             return false;
         }
 
-        const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/login', {
+        const response = await fetch(buildApiUrl('/auth/login'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

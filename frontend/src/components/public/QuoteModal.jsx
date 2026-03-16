@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { buildApiUrl } from '../../api/config';
 
 /**
  * QuoteModal - Request quote for specific product with quantity
@@ -85,7 +86,7 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
     const quantityValue = parseInt(formData.quantity, 10);
 
     try {
-      const response = await fetch('https://sekar-industries-backend.onrender.com/api/requests', {
+      const response = await fetch(buildApiUrl('/requests'), {
         method: 'POST',
         credentials: 'include',
         headers: {

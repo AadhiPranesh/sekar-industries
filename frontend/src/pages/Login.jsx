@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { buildApiUrl } from '../api/config';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -60,7 +61,7 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/user/login', {
+            const response = await fetch(buildApiUrl('/auth/user/login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

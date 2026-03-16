@@ -5,6 +5,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { adminApi } from '../../api/adminApi';
+import { buildBackendUrl } from '../../api/config';
 
 const AdminProducts = () => {
     const initialAddForm = {
@@ -180,9 +181,7 @@ const AdminProducts = () => {
 
         try {
             const uploadRes = await adminApi.uploadProductImage(file);
-            const finalUrl = uploadRes.imageUrl?.startsWith('http')
-                ? uploadRes.imageUrl
-                : `https://sekar-industries-backend.onrender.com${uploadRes.imageUrl}`;
+            const finalUrl = buildBackendUrl(uploadRes.imageUrl);
 
             setEditForm((prev) => ({ ...prev, image: finalUrl }));
         } catch (err) {
@@ -204,9 +203,7 @@ const AdminProducts = () => {
 
         try {
             const uploadRes = await adminApi.uploadProductImage(file);
-            const finalUrl = uploadRes.imageUrl?.startsWith('http')
-                ? uploadRes.imageUrl
-                : `https://sekar-industries-backend.onrender.com${uploadRes.imageUrl}`;
+            const finalUrl = buildBackendUrl(uploadRes.imageUrl);
 
             setAddForm((prev) => ({ ...prev, image: finalUrl }));
         } catch (err) {

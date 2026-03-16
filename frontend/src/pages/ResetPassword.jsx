@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { buildApiUrl } from '../api/config';
 
 const ResetPassword = () => {
     const navigate = useNavigate();
@@ -78,7 +79,7 @@ const ResetPassword = () => {
         setMessage('');
 
         try {
-            const res = await fetch('https://sekar-industries-backend.onrender.com/api/auth/reset-password', {
+            const res = await fetch(buildApiUrl('/auth/reset-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -114,7 +115,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const res = await fetch('https://sekar-industries-backend.onrender.com/api/auth/forgot-password', {
+            const res = await fetch(buildApiUrl('/auth/forgot-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email })
