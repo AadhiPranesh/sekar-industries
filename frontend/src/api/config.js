@@ -57,7 +57,15 @@ export const fetchData = async (endpoint, mockDataFn) => {
     return mockDataFn();
   }
   
-  // Future: Real API call
+  const getMockFallback = async () => {
+    if (typeof mockDataFn !== 'function') {
+      return null;
+    }
+
+    await simulateDelay();
+    return mockDataFn();
+  };
+
   try {
     const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
       method: 'GET',
@@ -67,11 +75,21 @@ export const fetchData = async (endpoint, mockDataFn) => {
     });
     
     if (!response.ok) {
+      const fallback = await getMockFallback();
+      if (fallback) {
+        return fallback;
+      }
+
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
+    const fallback = await getMockFallback();
+    if (fallback) {
+      return fallback;
+    }
+
     return createErrorResponse(error.message, 'FETCH_ERROR');
   }
 };
