@@ -137,7 +137,7 @@ const ComboOffers = () => {
                         <div className="section-icon"><GiftIcon /></div>
                         <h2 className="section-title">Special Combo Offers</h2>
                         <p className="section-subtitle" style={{color: 'red'}}>
-                            {error} - Please check if the backend is running at http://localhost:8000
+                            {error}
                         </p>
                     </div>
                 </div>

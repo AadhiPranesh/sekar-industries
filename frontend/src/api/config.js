@@ -10,7 +10,7 @@
 export const API_CONFIG = {
   USE_MOCK_DATA: false,  // Toggle for development/production
   BASE_URL: 'https://sekar-industries-backend.onrender.com/api',  // Future backend URL
-  ML_URL: 'http://localhost:8000/ml',     // Future ML service URL
+  ML_URL: '',     // Optional ML service URL (set VITE_ML_BASE_URL in env)
   TIMEOUT: 10000,
   VERSION: '1.0.0'
 };

@@ -4,8 +4,14 @@
  */
 
 import { useState, useEffect } from 'react';
+import { API_CONFIG } from '../../api/config';
 
-const ML_URL = 'http://localhost:8000';
+const normalizeBaseUrl = (value) => {
+    if (!value) return '';
+    return String(value).trim().replace(/\/+$/, '').replace(/\/ml$/, '');
+};
+
+const ML_URL = normalizeBaseUrl(import.meta.env.VITE_ML_BASE_URL) || normalizeBaseUrl(API_CONFIG.ML_URL);
 
 /* ── SVG icon components for each status ── */
 const IconFire = ({ color }) => (
@@ -101,6 +107,12 @@ const AdminProductHealth = () => {
     const [activeFilter, setActiveFilter] = useState('All');
 
     useEffect(() => {
+        if (!ML_URL) {
+            setError('ML service is not configured for this environment.');
+            setLoading(false);
+            return;
+        }
+
         fetch(`${ML_URL}/api/product-health`)
             .then(res => {
                 if (!res.ok) throw new Error(`Server error: ${res.status}`);
