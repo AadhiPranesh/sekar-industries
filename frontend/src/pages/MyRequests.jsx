@@ -38,10 +38,10 @@ const MyRequests = () => {
 
         try {
             const [summaryResponse, requestsResponse] = await Promise.all([
-                fetch('https://sekar-industries.onrender.com/api/requests/my/summary', {
+                fetch('https://sekar-industries-backend.onrender.com/api/requests/my/summary', {
                     credentials: 'include'
                 }),
-                fetch(`https://sekar-industries.onrender.com/api/requests/my?status=${encodeURIComponent(statusFilter)}`, {
+                fetch(`https://sekar-industries-backend.onrender.com/api/requests/my?status=${encodeURIComponent(statusFilter)}`, {
                     credentials: 'include'
                 })
             ]);

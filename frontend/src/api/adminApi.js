@@ -29,7 +29,7 @@ export const authFetch = async (url, options = {}) => {
 
 export const adminApi = {
     getPrediction: async (productId) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/adminDashboard/predict/${productId}`);
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/adminDashboard/predict/${productId}`);
         if (!response.ok) {
             await throwApiError(response);
         }
@@ -52,7 +52,7 @@ export const adminApi = {
         }
 
         const queryString = queryParams.toString();
-        const url = `https://sekar-industries.onrender.com/api/requests/admin${queryString ? `?${queryString}` : ''}`;
+        const url = `https://sekar-industries-backend.onrender.com/api/requests/admin${queryString ? `?${queryString}` : ''}`;
 
         const response = await authFetch(url);
         if (!response.ok) {
@@ -63,7 +63,7 @@ export const adminApi = {
     },
 
     updateProductRequestStatus: async (requestId, status) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/requests/admin/${requestId}/status`, {
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/requests/admin/${requestId}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ export const adminApi = {
     },
 
     updateProductRequest: async (requestId, body) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/requests/admin/${requestId}`, {
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/requests/admin/${requestId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ export const adminApi = {
     },
 
     createSale: async (payload) => {
-        const response = await authFetch('https://sekar-industries.onrender.com/api/sales/admin', {
+        const response = await authFetch('https://sekar-industries-backend.onrender.com/api/sales/admin', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -111,7 +111,7 @@ export const adminApi = {
     },
 
     getRecentSales: async (limit = 10) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/sales/admin/recent?limit=${limit}`);
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/sales/admin/recent?limit=${limit}`);
 
         if (!response.ok) {
             await throwApiError(response);
@@ -122,7 +122,7 @@ export const adminApi = {
 
     getAdminReviews: async (status = 'all') => {
         const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/reviews/admin${query}`);
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/reviews/admin${query}`);
 
         if (!response.ok) {
             await throwApiError(response);
@@ -132,7 +132,7 @@ export const adminApi = {
     },
 
     updateAdminReview: async (reviewId, payload) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/reviews/admin/${reviewId}`, {
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/reviews/admin/${reviewId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -148,13 +148,13 @@ export const adminApi = {
     },
 
     getDashboardStats: async () => {
-        const response = await authFetch('https://sekar-industries.onrender.com/api/sales/admin/stats');
+        const response = await authFetch('https://sekar-industries-backend.onrender.com/api/sales/admin/stats');
         if (!response.ok) await throwApiError(response);
         return response.json();
     },
 
     getSalesTrend: async (range = '1M') => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/sales/admin/trend?range=${range}`);
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/sales/admin/trend?range=${range}`);
         if (!response.ok) await throwApiError(response);
         return response.json();
     },
@@ -166,13 +166,13 @@ export const adminApi = {
         if (filters.lowStock) params.set('lowStock', 'true');
         if (filters.search) params.set('q', filters.search);
         const qs = params.toString();
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/products/admin${qs ? `?${qs}` : ''}`);
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/products/admin${qs ? `?${qs}` : ''}`);
         if (!response.ok) await throwApiError(response);
         return response.json();
     },
 
     createProduct: async (payload) => {
-        const response = await authFetch('https://sekar-industries.onrender.com/api/products', {
+        const response = await authFetch('https://sekar-industries-backend.onrender.com/api/products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -185,7 +185,7 @@ export const adminApi = {
         const formData = new FormData();
         formData.append('image', file);
 
-        const response = await authFetch('https://sekar-industries.onrender.com/api/products/upload-image', {
+        const response = await authFetch('https://sekar-industries-backend.onrender.com/api/products/upload-image', {
             method: 'POST',
             body: formData
         });
@@ -195,7 +195,7 @@ export const adminApi = {
     },
 
     updateProduct: async (productId, payload) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/products/${productId}`, {
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/products/${productId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -205,7 +205,7 @@ export const adminApi = {
     },
 
     deleteProduct: async (productId) => {
-        const response = await authFetch(`https://sekar-industries.onrender.com/api/products/${productId}`, {
+        const response = await authFetch(`https://sekar-industries-backend.onrender.com/api/products/${productId}`, {
             method: 'DELETE'
         });
         if (!response.ok) await throwApiError(response);

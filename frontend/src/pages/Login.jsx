@@ -60,7 +60,7 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('https://sekar-industries.onrender.com/api/auth/user/login', {
+            const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

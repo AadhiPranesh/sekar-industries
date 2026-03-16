@@ -86,7 +86,7 @@ const ProductDetail = () => {
             setReviewsLoading(true);
             setReviewsError('');
             try {
-                const response = await fetch(`https://sekar-industries.onrender.com/api/reviews?productId=${encodeURIComponent(id)}`);
+                const response = await fetch(`https://sekar-industries-backend.onrender.com/api/reviews?productId=${encodeURIComponent(id)}`);
                 const data = await response.json().catch(() => ({}));
 
                 if (!response.ok || !data?.success) {
@@ -120,7 +120,7 @@ const ProductDetail = () => {
         setIsReviewModalOpen(false);
         setReviewsError('Your review was submitted and is pending admin approval.');
         try {
-            const response = await fetch(`https://sekar-industries.onrender.com/api/reviews?productId=${encodeURIComponent(id)}`);
+            const response = await fetch(`https://sekar-industries-backend.onrender.com/api/reviews?productId=${encodeURIComponent(id)}`);
             const data = await response.json().catch(() => ({}));
             if (response.ok && data?.success) {
                 const mapped = (data.reviews || []).map((item) => ({
