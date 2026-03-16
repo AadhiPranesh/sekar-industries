@@ -1,16 +1,35 @@
 /**
  * API Configuration
- * Central configuration for data sources and API endpoints
- * 
- * FUTURE INTEGRATION:
- * When backend is ready, simply set USE_MOCK_DATA to false
- * and update BASE_URL to point to your API server
+ * Central configuration for data sources and deployed service endpoints.
  */
 
+const normalizeOrigin = (value) => {
+  if (!value) return '';
+  return String(value).trim().replace(/\/+$/, '');
+};
+
+export const BACKEND_ORIGIN = normalizeOrigin(import.meta.env.VITE_API_BASE_URL) || 'https://sekar-industries.onrender.com';
+export const ML_ORIGIN = normalizeOrigin(import.meta.env.VITE_ML_BASE_URL) || 'https://sekar-industries-2.onrender.com';
+export const ANALYTICS_ORIGIN = normalizeOrigin(import.meta.env.VITE_ANALYTICS_BASE_URL) || 'https://sekar-industries-1.onrender.com';
+
+export const buildApiUrl = (endpoint = '') => {
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${BACKEND_ORIGIN}/api${normalizedEndpoint}`;
+};
+
+export const buildBackendUrl = (path = '') => {
+  if (!path) return BACKEND_ORIGIN;
+  if (/^https?:\/\//i.test(path)) return path;
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${BACKEND_ORIGIN}${normalizedPath}`;
+};
+
 export const API_CONFIG = {
-  USE_MOCK_DATA: false,  // Toggle for development/production
-  BASE_URL: 'https://sekar-industries-backend.onrender.com/api',  // Future backend URL
-  ML_URL: '',     // Optional ML service URL (set VITE_ML_BASE_URL in env)
+  USE_MOCK_DATA: false,
+  BASE_URL: `${BACKEND_ORIGIN}/api`,
+  ML_URL: ML_ORIGIN,
+  ANALYTICS_URL: ANALYTICS_ORIGIN,
   TIMEOUT: 10000,
   VERSION: '1.0.0'
 };
