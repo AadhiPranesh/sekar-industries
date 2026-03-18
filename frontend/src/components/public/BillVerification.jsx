@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { buildApiUrl } from '../../api/config';
 
 /**
  * BillVerification - First step in review flow
@@ -18,7 +19,7 @@ const BillVerification = ({ productId, onVerified }) => {
     setVerifying(true);
 
     try {
-      const response = await fetch('https://sekar-industries-backend.onrender.com/api/reviews/verify-bill', {
+      const response = await fetch(buildApiUrl('/reviews/verify-bill'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

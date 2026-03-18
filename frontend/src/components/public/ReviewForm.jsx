@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import StarRating from '../common/StarRating';
+import { buildApiUrl } from '../../api/config';
 
 /**
  * ReviewForm - Submit review with rating, text, and images
@@ -73,7 +74,7 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
         images: images.map(img => img.preview)
       };
 
-      const response = await fetch('https://sekar-industries-backend.onrender.com/api/reviews/submit', {
+      const response = await fetch(buildApiUrl('/reviews/submit'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

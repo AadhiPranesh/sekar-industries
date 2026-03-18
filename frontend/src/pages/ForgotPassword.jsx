@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { buildApiUrl } from '../api/config';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
@@ -34,7 +35,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            const res = await fetch('https://sekar-industries-backend.onrender.com/api/auth/forgot-password', {
+            const res = await fetch(buildApiUrl('/auth/forgot-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })

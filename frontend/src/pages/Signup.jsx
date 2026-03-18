@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { buildApiUrl } from '../api/config';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -81,7 +82,7 @@ const Signup = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/signup', {
+            const response = await fetch(buildApiUrl('/auth/signup'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

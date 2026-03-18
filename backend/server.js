@@ -29,8 +29,18 @@ const allowedOrigins = new Set([
     'http://localhost:5174',
     'http://localhost:5175',
     'https://sekar-industries-frontend.onrender.com',
+    'https://sekar-industries-3.onrender.com',
     process.env.FRONTEND_URL
 ].filter(Boolean));
+
+const renderOriginPattern = /^https:\/\/sekar-industries(?:-[a-z0-9]+)?\.onrender\.com$/i;
+
+const isOriginAllowed = (origin) => {
+    if (!origin) return true;
+    if (allowedOrigins.has(origin)) return true;
+    if (renderOriginPattern.test(origin)) return true;
+    return false;
+};
 
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -40,15 +50,17 @@ app.set('trust proxy', 1);
 
 const corsOptions = {
     origin(origin, callback) {
-        if (!origin || allowedOrigins.has(origin)) {
+        if (isOriginAllowed(origin)) {
             return callback(null, true);
         }
 
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
+        console.warn(`CORS blocked for origin: ${origin}`);
+        return callback(null, false);
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    credentials: true,
+    optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));

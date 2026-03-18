@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { buildApiUrl } from '../api/config';
 
 const statusClassMap = {
     new: 'status-warning',
@@ -38,10 +39,10 @@ const MyRequests = () => {
 
         try {
             const [summaryResponse, requestsResponse] = await Promise.all([
-                fetch('https://sekar-industries-backend.onrender.com/api/requests/my/summary', {
+                fetch(buildApiUrl('/requests/my/summary'), {
                     credentials: 'include'
                 }),
-                fetch(`https://sekar-industries-backend.onrender.com/api/requests/my?status=${encodeURIComponent(statusFilter)}`, {
+                fetch(buildApiUrl(`/requests/my?status=${encodeURIComponent(statusFilter)}`), {
                     credentials: 'include'
                 })
             ]);

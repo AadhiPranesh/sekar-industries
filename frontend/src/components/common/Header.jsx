@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import { buildApiUrl } from '../../api/config';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -41,7 +42,7 @@ const Header = () => {
             }
 
             try {
-                const response = await fetch('https://sekar-industries-backend.onrender.com/api/requests/my/summary', {
+                const response = await fetch(buildApiUrl('/requests/my/summary'), {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -101,7 +102,7 @@ const Header = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('https://sekar-industries-backend.onrender.com/api/auth/logout', {
+            const response = await fetch(buildApiUrl('/auth/logout'), {
                 method: 'POST',
                 credentials: 'include'
             });

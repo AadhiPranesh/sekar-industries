@@ -17,8 +17,10 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
+        "https://sekar-industries-3.onrender.com",
+        "https://sekar-industries.onrender.com",
     ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$|https://sekar-industries(?:-[a-z0-9]+)?\.onrender\.com$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,6 +41,15 @@ prophet_df = prophet_df.rename(columns={"date": "ds", "sales_qty": "y"})
 # Train model
 model = Prophet()
 model.fit(prophet_df)
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "Welcome to Sekar Industries ML API",
+        "status": "running",
+        "endpoints": ["/demand", "/api/product-health", "/combo", "/docs"]
+    }
 
 
 @app.get("/demand")
