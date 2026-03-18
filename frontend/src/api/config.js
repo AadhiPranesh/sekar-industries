@@ -87,10 +87,7 @@ export const fetchData = async (endpoint, mockDataFn) => {
 
   try {
     const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      method: 'GET'
     });
     
     if (!response.ok) {
