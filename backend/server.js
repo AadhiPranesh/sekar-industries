@@ -25,10 +25,6 @@ const uploadsDir = path.join(__dirname, 'uploads');
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = process.env.SESSION_SECRET || 'dev-only-session-secret-change-me';
 const allowedOrigins = new Set([
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'https://sekar-industries-frontend.onrender.com',
     'https://sekar-industries-3.onrender.com',
     process.env.FRONTEND_URL
 ].filter(Boolean));
