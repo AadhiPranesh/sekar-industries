@@ -23,6 +23,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 const isProduction = process.env.NODE_ENV === 'production';
+const sessionSecret = process.env.SESSION_SECRET || 'dev-only-session-secret-change-me';
 const allowedOrigins = new Set([
     'http://localhost:5173',
     'http://localhost:5174',
@@ -40,6 +41,10 @@ const isOriginAllowed = (origin) => {
     if (renderOriginPattern.test(origin)) return true;
     return false;
 };
+
+if (!process.env.SESSION_SECRET) {
+    console.warn('SESSION_SECRET is not set; using a fallback secret. Set SESSION_SECRET in production.');
+}
 
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -63,6 +68,7 @@ app.use((req, res, next) => {
             return res.sendStatus(204);
         }
 
+        res.header('Vary', 'Origin');
         console.warn(`CORS blocked for origin: ${origin}`);
         return res.status(403).json({ success: false, message: 'CORS blocked' });
     }
@@ -75,7 +81,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadsDir));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -109,6 +115,13 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && isOriginAllowed(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Vary', 'Origin');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
+
     console.error(err.stack);
     res.status(500).json({ 
         success: false, 
