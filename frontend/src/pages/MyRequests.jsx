@@ -38,6 +38,16 @@ const MyRequests = () => {
         setError('');
 
         try {
+            const authResponse = await fetch(buildApiUrl('/auth/me'), {
+                credentials: 'include'
+            });
+
+            if (authResponse.status === 401) {
+                localStorage.removeItem('user');
+                navigate('/login');
+                return;
+            }
+
             const [summaryResponse, requestsResponse] = await Promise.all([
                 fetch(buildApiUrl('/requests/my/summary'), {
                     credentials: 'include'
