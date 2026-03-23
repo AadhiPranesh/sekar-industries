@@ -25,6 +25,10 @@ const uploadsDir = path.join(__dirname, 'uploads');
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = process.env.SESSION_SECRET || 'dev-only-session-secret-change-me';
 const allowedOrigins = new Set([
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+
     'https://sekar-industries-3.onrender.com',
     process.env.FRONTEND_URL
 ].filter(Boolean));
@@ -40,6 +44,10 @@ const isOriginAllowed = (origin) => {
 
 if (!process.env.SESSION_SECRET) {
     console.warn('SESSION_SECRET is not set; using a fallback secret. Set SESSION_SECRET in production.');
+}
+
+if (!process.env.MONGODB_URI) {
+    console.error('❌ MONGODB_URI is not set! Database operations will fail. Set MONGODB_URI in your environment variables.');
 }
 
 if (!fs.existsSync(uploadsDir)) {
@@ -88,9 +96,13 @@ app.use(session({
     }
 }));
 
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB connected successfully'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(() => console.log('✅ MongoDB connected successfully'))
+        .catch(err => console.error('❌ MongoDB connection error:', err.message));
+} else {
+    console.warn('⚠️  No MONGODB_URI set. Database features will not work.');
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api/adminDashboard', adminDashboardRoutes); 
@@ -103,10 +115,22 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/business', businessRoutes);
 
 app.get('/api/health', (req, res) => {
+    const dbConnected = mongoose.connection.readyState === 1;
+    
     res.json({ 
-        status: 'OK', 
+        status: dbConnected ? 'OK' : 'DEGRADED',
         message: 'Sekar Industries API is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        database: {
+            connected: dbConnected,
+            state: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
+            uri: process.env.MONGODB_URI ? '✓ Set' : '✗ Not set'
+        },
+        env: {
+            nodeEnv: process.env.NODE_ENV || 'not set',
+            sessionSecret: process.env.SESSION_SECRET ? '✓ Set' : '✗ Not set',
+            frontendUrl: process.env.FRONTEND_URL ? '✓ Set' : '✗ Not set'
+        }
     });
 });
 
