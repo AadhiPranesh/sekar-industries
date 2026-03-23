@@ -6,6 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+
+@app.get("/")
+def root():
+    return {
+        "message": "Data found successfully",
+        "status": "running",
+        "available_endpoints": ["/dashboard/{product_id}", "/api/product-health", "/combo", "/docs"],
+    }
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

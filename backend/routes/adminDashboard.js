@@ -4,6 +4,16 @@ import verifyToken from '../middleware/verifyToken.js';
 
 const router = express.Router();
 
+const normalizeBaseUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+
+const SALES_PREDICTION_BASE_URL = normalizeBaseUrl(
+    process.env.SALES_PREDICTION_URL
+        || process.env.ANALYTICS_API_URL
+        || (process.env.NODE_ENV === 'production'
+            ? 'https://sekar-industries-1.onrender.com'
+            : 'http://127.0.0.1:8000')
+);
+
 router.use(verifyToken);
 
 // Route: GET /api/adminDashboard/predict/:id
@@ -13,7 +23,7 @@ router.get('/predict/:id', async (req, res) => {
         
         console.log(`Frontend requested prediction for: ${productId}`);
 
-        const mlResponse = await axios.get(`http://127.0.0.1:8000/dashboard/${productId}`);
+        const mlResponse = await axios.get(`${SALES_PREDICTION_BASE_URL}/dashboard/${productId}`);
         
         res.json(mlResponse.data);
         
