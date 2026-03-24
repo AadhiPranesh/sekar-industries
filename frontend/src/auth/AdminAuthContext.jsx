@@ -58,28 +58,46 @@ export const AdminAuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         if (!email?.trim() || !password?.trim()) {
-            return false;
+            return {
+                success: false,
+                message: 'Email and password are required.'
+            };
         }
 
-        const response = await fetch(buildApiUrl('/auth/login'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email.trim(),
-                password: password.trim()
-            })
-        });
+        try {
+            const response = await fetch(buildApiUrl('/auth/login'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    password: password.trim()
+                })
+            });
 
-        const data = await response.json();
-        if (!response.ok || !data?.success || !data?.token) {
-            return false;
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data?.success || !data?.token) {
+                return {
+                    success: false,
+                    status: response.status,
+                    message: data?.message || 'Login failed. Please try again.'
+                };
+            }
+
+            localStorage.setItem(ADMIN_AUTH_TOKEN_KEY, data.token);
+            setIsAdminAuthenticated(true);
+            return {
+                success: true,
+                message: data?.message || 'Login successful.'
+            };
+        } catch (error) {
+            console.error('Admin login request failed:', error);
+            return {
+                success: false,
+                message: 'Network error. Please check your connection and try again.'
+            };
         }
-
-        localStorage.setItem(ADMIN_AUTH_TOKEN_KEY, data.token);
-        setIsAdminAuthenticated(true);
-        return true;
     };
 
     const logout = () => {
