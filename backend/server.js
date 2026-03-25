@@ -51,6 +51,10 @@ if (!process.env.MONGODB_URI) {
     console.error('❌ MONGODB_URI is not set! Database operations will fail. Set MONGODB_URI in your environment variables.');
 }
 
+console.log('EMAIL_USER:', process.env.EMAIL_USER || 'Missing');
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Loaded' : 'Missing');
+console.log('EMAIL_FROM:', process.env.EMAIL_FROM || 'Missing');
+
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
