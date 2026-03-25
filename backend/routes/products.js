@@ -175,16 +175,20 @@ router.post('/upload-image', verifyToken, (req, res) => {
 // GET /api/products — public
 router.get('/', async (req, res) => {
     try {
+        console.log('📦 GET /api/products - Fetching products with filters:', req.query);
+        const startTime = Date.now();
         const filter = buildProductFilter(req.query);
         const products = await Product.find(filter).sort({ productId: 1 }).lean();
         const filtered = applySearchAndLowStock(products, req.query);
+        const duration = Date.now() - startTime;
+        console.log(`✅ Products fetched: ${filtered.length} items in ${duration}ms`);
 
         return res.json({
             success: true,
             data: filtered.map(withAvailability)
         });
     } catch (error) {
-        console.error('Get products error:', error);
+        console.error('❌ Get products error:', error.message);
         return res.status(500).json({ success: false, message: 'Error fetching products' });
     }
 });
@@ -192,12 +196,14 @@ router.get('/', async (req, res) => {
 // GET /api/products/admin — admin only
 router.get('/admin', verifyToken, async (req, res) => {
     try {
+        console.log('📦 GET /api/products/admin - Admin product fetch');
         const filter = buildProductFilter(req.query);
         const products = await Product.find(filter).sort({ productId: 1 }).lean();
         const filtered = applySearchAndLowStock(products, req.query);
+        console.log(`✅ Admin products fetched: ${filtered.length} items`);
         return res.json({ success: true, data: filtered.map(withAvailability) });
     } catch (error) {
-        console.error('Get admin products error:', error);
+        console.error('❌ Get admin products error:', error.message);
         return res.status(500).json({ success: false, message: 'Error fetching products' });
     }
 });
@@ -205,8 +211,13 @@ router.get('/admin', verifyToken, async (req, res) => {
 // GET /api/products/admin/:id — admin only
 router.get('/admin/:id', verifyToken, async (req, res) => {
     try {
+        console.log(`📦 GET /api/products/admin/${req.params.id}`);
         const product = await Product.findOne(getProductLookupQuery(req.params.id)).lean();
-        if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+        if (!product) {
+            console.warn(`⚠️ Product not found: ${req.params.id}`);
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+        console.log(`✅ Product found: ${product.productId} - ${product.name}`);
         return res.json({ success: true, data: withAvailability(product) });
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Error fetching product' });

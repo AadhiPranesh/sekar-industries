@@ -80,6 +80,22 @@ Server will run on: **http://localhost:5000**
 - **URL**: `/api/health`
 - **Method**: `GET`
 
+#### 6. Admin Bootstrap (Create/Update Admin Record)
+- **URL**: `/api/auth/admin/bootstrap`
+- **Method**: `POST`
+- **Header**: `x-admin-setup-key: <ADMIN_SETUP_KEY>`
+- **Body**:
+```json
+{
+  "email": "admin@company.com",
+  "password": "StrongPass@123"
+}
+```
+
+Notes:
+- This endpoint is enabled only when `ADMIN_SETUP_KEY` is set in environment variables.
+- If admin email exists, password is updated. If not, a new admin record is created.
+
 ## Database Schema
 
 ### User Model

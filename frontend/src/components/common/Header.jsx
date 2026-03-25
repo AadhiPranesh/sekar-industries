@@ -42,6 +42,19 @@ const Header = () => {
             }
 
             try {
+                const authResponse = await fetch(buildApiUrl('/auth/me'), {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (authResponse.status === 401) {
+                    localStorage.removeItem('user');
+                    setUser(null);
+                    setIsProfileOpen(false);
+                    setRequestSummary({ total: 0, open: 0, closed: 0 });
+                    return;
+                }
+
                 const response = await fetch(buildApiUrl('/requests/my/summary'), {
                     method: 'GET',
                     credentials: 'include'

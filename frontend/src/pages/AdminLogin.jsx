@@ -47,9 +47,9 @@ const AdminLogin = () => {
 
 		setIsLoading(true);
 		try {
-			const success = await login(formData.email, formData.password);
-			if (!success) {
-				setErrors({ form: 'Invalid credentials. Please try again.' });
+			const result = await login(formData.email, formData.password);
+			if (!result?.success) {
+				setErrors({ form: result?.message || 'Invalid credentials. Please try again.' });
 				return;
 			}
 			navigate(redirectTo, { replace: true });

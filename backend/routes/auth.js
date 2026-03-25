@@ -124,6 +124,87 @@ const sendResetOtpEmail = async (recipientEmail, otp) => {
     }
 };
 
+// Protected admin bootstrap route to create/update admin credentials.
+// Enable by setting ADMIN_SETUP_KEY in backend environment variables.
+router.post('/admin/bootstrap', async (req, res) => {
+    try {
+        const setupKey = process.env.ADMIN_SETUP_KEY;
+        if (!setupKey) {
+            return res.status(503).json({
+                success: false,
+                message: 'Admin bootstrap is disabled on this server.'
+            });
+        }
+
+        const requestKey = String(req.headers['x-admin-setup-key'] || '').trim();
+        if (!requestKey || requestKey !== setupKey) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden'
+            });
+        }
+
+        const normalizedEmail = String(req.body?.email || '').trim().toLowerCase();
+        const normalizedPassword = String(req.body?.password || '').trim();
+
+        if (!normalizedEmail || !normalizedPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required'
+            });
+        }
+
+        if (!/\S+@\S+\.\S+/.test(normalizedEmail)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email'
+            });
+        }
+
+        if (normalizedPassword.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters'
+            });
+        }
+
+        const existingAdmin = await Admin.findOne({ email: normalizedEmail });
+        if (existingAdmin) {
+            existingAdmin.password = normalizedPassword;
+            await existingAdmin.save();
+
+            return res.json({
+                success: true,
+                message: 'Admin credentials updated successfully',
+                admin: {
+                    id: existingAdmin._id,
+                    email: existingAdmin.email
+                }
+            });
+        }
+
+        const createdAdmin = await Admin.create({
+            email: normalizedEmail,
+            password: normalizedPassword
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: 'Admin account created successfully',
+            admin: {
+                id: createdAdmin._id,
+                email: createdAdmin.email
+            }
+        });
+    } catch (error) {
+        console.error('Admin bootstrap error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to create admin account'
+        });
+    }
+});
+
 // Signup route
 router.post('/signup', async (req, res) => {
     try {
@@ -262,11 +343,13 @@ router.post('/user/login', async (req, res) => {
 // Admin login route (JWT-based)
 router.post('/login', adminLoginRateLimit, async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email } = req.body;
+        console.log(`🔐 POST /api/auth/login - Admin login attempt: ${email}`);
         const normalizedEmail = String(email || '').trim().toLowerCase();
         const normalizedPassword = String(password || '').trim();
 
         if (!normalizedEmail || !normalizedPassword) {
+            console.log(`⚠️ Missing email or password`);
             return res.status(400).json({
                 success: false,
                 message: 'Email and password are required'
@@ -275,6 +358,7 @@ router.post('/login', adminLoginRateLimit, async (req, res) => {
 
         const admin = await Admin.findOne({ email: normalizedEmail });
         if (!admin) {
+            console.warn(`❌ Admin not found: ${normalizedEmail}`);
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
@@ -283,6 +367,7 @@ router.post('/login', adminLoginRateLimit, async (req, res) => {
 
         const isPasswordValid = await admin.comparePassword(normalizedPassword);
         if (!isPasswordValid) {
+            console.warn(`❌ Invalid password for admin: ${normalizedEmail}`);
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
@@ -301,6 +386,7 @@ router.post('/login', adminLoginRateLimit, async (req, res) => {
 
         clearAdminLoginRateLimit(req);
 
+        console.log(`✅ Admin login successful: ${normalizedEmail}`);
         return res.json({
             success: true,
             message: 'Admin login successful',
@@ -311,7 +397,7 @@ router.post('/login', adminLoginRateLimit, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Admin login error:', error);
+        console.error('❌ Admin login error:', error.message);
         return res.status(500).json({
             success: false,
             message: 'Error logging in. Please try again.'
@@ -320,6 +406,7 @@ router.post('/login', adminLoginRateLimit, async (req, res) => {
 });
 
 router.get('/verify-admin', verifyToken, (req, res) => {
+    console.log(`🔐 GET /api/auth/verify-admin - Token verification`);
     return res.json({
         success: true,
         admin: req.admin
