@@ -46,7 +46,7 @@ const ForgotPassword = () => {
                 throw new Error(data.message || 'Failed to send OTP');
             }
 
-                setMessage(`OTP has been sent to your email. Please check your inbox.`);
+            setMessage(data.message || 'Request processed. Please check your inbox.');
 
             setTimeout(() => {
                 navigate('/reset-password', { state: { email } });
