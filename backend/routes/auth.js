@@ -343,7 +343,7 @@ router.post('/user/login', async (req, res) => {
 // Admin login route (JWT-based)
 router.post('/login', adminLoginRateLimit, async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, password } = req.body;
         console.log(`🔐 POST /api/auth/login - Admin login attempt: ${email}`);
         const normalizedEmail = String(email || '').trim().toLowerCase();
         const normalizedPassword = String(password || '').trim();
