@@ -24,6 +24,20 @@ const ResetPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
 
+    const fetchWithTimeout = async (url, options = {}, timeoutMs = 15000) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timer);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -115,7 +129,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const res = await fetch(buildApiUrl('/auth/forgot-password'), {
+            const res = await fetchWithTimeout(buildApiUrl('/auth/forgot-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email })
@@ -124,6 +138,10 @@ const ResetPassword = () => {
             setMessage(data?.message || 'Request processed. Please check your inbox.');
             setTimeout(() => setMessage(''), 5000);
         } catch (err) {
+            if (err?.name === 'AbortError') {
+                setErrors({ form: 'Request timed out. Please try again in a few seconds.' });
+                return;
+            }
             setErrors({ form: 'Failed to resend OTP. Please try again.' });
         }
     };
