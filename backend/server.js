@@ -24,6 +24,7 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = process.env.SESSION_SECRET || 'dev-only-session-secret-change-me';
+const mongoDbName = process.env.MONGODB_DB_NAME || 'sekar-industries';
 const allowedOrigins = new Set([
     'http://localhost:5173',
     'http://localhost:5174',
@@ -113,8 +114,8 @@ app.use(session({
 }));
 
 if (process.env.MONGODB_URI) {
-    mongoose.connect(process.env.MONGODB_URI)
-        .then(() => console.log('✅ MongoDB connected successfully'))
+    mongoose.connect(process.env.MONGODB_URI, { dbName: mongoDbName })
+        .then(() => console.log(`✅ MongoDB connected successfully (db: ${mongoose.connection.db?.databaseName || mongoDbName})`))
         .catch(err => console.error('❌ MongoDB connection error:', err.message));
 } else {
     console.warn('⚠️  No MONGODB_URI set. Database features will not work.');
@@ -157,7 +158,8 @@ app.get('/api/health', (req, res) => {
         database: {
             connected: dbConnected,
             state: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
-            uri: process.env.MONGODB_URI ? '✓ Set' : '✗ Not set'
+            uri: process.env.MONGODB_URI ? '✓ Set' : '✗ Not set',
+            dbName: mongoose.connection.db?.databaseName || mongoDbName
         },
         env: {
             nodeEnv: process.env.NODE_ENV || 'not set',
