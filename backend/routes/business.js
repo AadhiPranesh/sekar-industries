@@ -40,10 +40,12 @@ const businessInfo = {
 };
 
 router.get('/', (req, res) => {
+    console.log('🏢 GET /api/business - Fetching business info');
     res.json({ success: true, data: businessInfo });
 });
 
 router.get('/contact', (req, res) => {
+    console.log('📞 GET /api/business/contact - Fetching contact info');
     res.json({
         success: true,
         data: {

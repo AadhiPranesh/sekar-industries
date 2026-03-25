@@ -56,6 +56,21 @@ if (!fs.existsSync(uploadsDir)) {
 
 app.set('trust proxy', 1);
 
+// Request logging middleware
+app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`📨 [${timestamp}] ${req.method} ${req.path}`);
+    
+    // Log request body for POST/PATCH requests (hide passwords)
+    if ((req.method === 'POST' || req.method === 'PATCH') && req.body) {
+        const safeBody = { ...req.body };
+        if (safeBody.password) safeBody.password = '***';
+        console.log(`   Body:`, JSON.stringify(safeBody).substring(0, 200));
+    }
+    
+    next();
+});
+
 app.use((req, res, next) => {
     const origin = req.headers.origin;
 
@@ -69,11 +84,12 @@ app.use((req, res, next) => {
 
     if (req.method === 'OPTIONS') {
         if (!origin || isOriginAllowed(origin)) {
+            console.log(`✅ CORS preflight allowed for: ${origin}`);
             return res.sendStatus(204);
         }
 
         res.header('Vary', 'Origin');
-        console.warn(`CORS blocked for origin: ${origin}`);
+        console.warn(`❌ CORS blocked for origin: ${origin}`);
         return res.status(403).json({ success: false, message: 'CORS blocked' });
     }
 
@@ -114,13 +130,30 @@ app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/business', businessRoutes);
 
+app.get('/test', (req, res) => {
+    console.log('✅ /test endpoint hit - Backend is responsive');
+    res.status(200).json({ 
+        message: 'Backend working',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
 app.get('/api/health', (req, res) => {
     const dbConnected = mongoose.connection.readyState === 1;
+    
+    console.log(`🏥 Health check: DB=${dbConnected ? 'OK' : 'FAILED'}`);
     
     res.json({ 
         status: dbConnected ? 'OK' : 'DEGRADED',
         message: 'Sekar Industries API is running',
         timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memoryUsage: {
+            heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+            heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB'
+        },
         database: {
             connected: dbConnected,
             state: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
