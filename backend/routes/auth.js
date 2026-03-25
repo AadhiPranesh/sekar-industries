@@ -343,7 +343,7 @@ router.post('/user/login', async (req, res) => {
 // Admin login route (JWT-based)
 router.post('/login', adminLoginRateLimit, async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, password } = req.body;
         console.log(`🔐 POST /api/auth/login - Admin login attempt: ${email}`);
         const normalizedEmail = String(email || '').trim().toLowerCase();
         const normalizedPassword = String(password || '').trim();
@@ -417,14 +417,19 @@ router.get('/verify-admin', verifyToken, (req, res) => {
 router.post('/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
-        if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        const normalizedEmail = String(email || '').toLowerCase().trim();
+
+        console.log(`[FORGOT_PASSWORD] Request received for: ${normalizedEmail || 'missing-email'}`);
+
+        if (!normalizedEmail || !/\S+@\S+\.\S+/.test(normalizedEmail)) {
             return res.status(400).json({ success: false, message: 'Valid email is required' });
         }
 
-        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        const user = await User.findOne({ email: normalizedEmail });
 
         // Always respond with success to avoid revealing whether an email exists
         if (!user) {
+            console.log(`[FORGOT_PASSWORD] No user found for: ${normalizedEmail}`);
             return res.json({ success: true, message: 'If this email is registered, an OTP has been sent.' });
         }
 
@@ -438,8 +443,11 @@ router.post('/forgot-password', async (req, res) => {
         const emailResult = await sendResetOtpEmail(user.email, otp);
         const emailSent = Boolean(emailResult?.sent);
 
+        console.log(`[FORGOT_PASSWORD] Email send status for ${user.email}: ${emailSent ? 'sent' : 'failed'}`);
+
         if (!emailSent) {
             console.log(`[PASSWORD RESET] OTP for ${user.email}: ${otp} (expires in 10 min)`);
+            console.log(`[FORGOT_PASSWORD] Email failure reason: ${emailResult?.reason || 'Unknown email error'}`);
         }
 
         return res.json({
