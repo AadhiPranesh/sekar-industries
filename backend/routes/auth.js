@@ -40,6 +40,18 @@ const clearAdminLoginRateLimit = (req) => {
 
 const hasEmailConfig = () => Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
 const getEmailPassword = () => String(process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+const MAIL_SEND_TIMEOUT_MS = 12000;
+const MAIL_MAX_ATTEMPTS = 2;
+const MAIL_RETRY_DELAY_MS = 500;
+
+const withTimeout = (promise, timeoutMs) => Promise.race([
+    promise,
+    new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('MAIL_TIMEOUT')), timeoutMs);
+    })
+]);
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const createMailer = () => {
     if (!hasEmailConfig()) {
@@ -50,6 +62,13 @@ const createMailer = () => {
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
+        connectionTimeout: 15000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+        tls: {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true
+        },
         auth: {
             user: process.env.EMAIL_USER,
             pass: getEmailPassword()
@@ -58,31 +77,29 @@ const createMailer = () => {
 };
 
 const sendResetOtpEmail = async (recipientEmail, otp) => {
-    try {
-        const transporter = createMailer();
+    const transporter = createMailer();
 
-        if (!transporter) {
-            return {
-                sent: false,
-                reason: 'Email credentials are missing in environment variables.'
-            };
-        }
+    if (!transporter) {
+        return {
+            sent: false,
+            reason: 'Email credentials are missing in environment variables.'
+        };
+    }
 
-        const sender = process.env.EMAIL_FROM || process.env.EMAIL_USER;
-
-        await transporter.sendMail({
-            from: sender,
-            to: recipientEmail,
-            subject: 'Sekar Industries Password Reset OTP',
-            text: [
-                'Your password reset OTP is below:',
-                '',
-                `OTP: ${otp}`,
-                '',
-                'This OTP will expire in 10 minutes.',
-                'Do not share this code with anyone.'
-            ].join('\n'),
-            html: `
+    const sender = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    const mailOptions = {
+        from: sender,
+        to: recipientEmail,
+        subject: 'Sekar Industries Password Reset OTP',
+        text: [
+            'Your password reset OTP is below:',
+            '',
+            `OTP: ${otp}`,
+            '',
+            'This OTP will expire in 10 minutes.',
+            'Do not share this code with anyone.'
+        ].join('\n'),
+        html: `
                 <div style="margin: 0; padding: 24px; background-color: #F7F6F2; font-family: Inter, Segoe UI, Arial, sans-serif; color: #333333; line-height: 1.6;">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 620px; margin: 0 auto; border-collapse: collapse;">
                         <tr>
@@ -111,17 +128,34 @@ const sendResetOtpEmail = async (recipientEmail, otp) => {
                     </table>
                 </div>
             `
-        });
+    };
 
-        return { sent: true };
-    } catch (mailError) {
-        const reason = mailError?.response || mailError?.message || 'Unknown SMTP error';
-        console.error('OTP email send failed:', reason);
-        return {
-            sent: false,
-            reason
-        };
+    let lastReason = 'Unknown SMTP error';
+    for (let attempt = 1; attempt <= MAIL_MAX_ATTEMPTS; attempt += 1) {
+        try {
+            const info = await withTimeout(
+                transporter.sendMail(mailOptions),
+                MAIL_SEND_TIMEOUT_MS
+            );
+
+            return {
+                sent: true,
+                messageId: info?.messageId
+            };
+        } catch (mailError) {
+            lastReason = mailError?.response || mailError?.message || 'Unknown SMTP error';
+
+            if (attempt < MAIL_MAX_ATTEMPTS) {
+                await sleep(MAIL_RETRY_DELAY_MS);
+            }
+        }
     }
+
+    console.error('OTP email send failed:', lastReason);
+    return {
+        sent: false,
+        reason: lastReason
+    };
 };
 
 // Protected admin bootstrap route to create/update admin credentials.
