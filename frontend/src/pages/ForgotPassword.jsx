@@ -16,6 +16,20 @@ const ForgotPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
 
+    const fetchWithTimeout = async (url, options = {}, timeoutMs = 15000) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timer);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -35,7 +49,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            const res = await fetch(buildApiUrl('/auth/forgot-password'), {
+            const res = await fetchWithTimeout(buildApiUrl('/auth/forgot-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -53,6 +67,10 @@ const ForgotPassword = () => {
             }, 2500);
 
         } catch (err) {
+            if (err?.name === 'AbortError') {
+                setError('Request timed out. Please try again in a few seconds.');
+                return;
+            }
             setError(err.message || 'Failed to send reset email. Please try again.');
         } finally {
             setIsLoading(false);
