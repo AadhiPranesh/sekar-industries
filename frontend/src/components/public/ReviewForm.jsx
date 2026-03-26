@@ -6,37 +6,32 @@ import { buildApiUrl } from '../../api/config';
  * ReviewForm - Submit review with rating, text, and images
  * Second step after bill verification
  */
+
+// Static image URLs for review photos
+const STATIC_IMAGES = [
+  { id: 1, url: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400', label: 'Product in use' },
+  { id: 2, url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400', label: 'Workshop setup' },
+  { id: 3, url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=400', label: 'Detail shot' },
+  { id: 4, url: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400', label: 'Factory setting' },
+  { id: 5, url: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=400', label: 'Assembly' },
+];
+
 const ReviewForm = ({ productData, onSubmit, onCancel }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
-  const [images, setImages] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    
-    // Limit to 5 images
-    if (images.length + files.length > 5) {
-      alert('You can upload a maximum of 5 images');
-      return;
-    }
-    
-    // Create preview URLs
-    const newImages = files.map(file => ({
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name
-    }));
-    
-    setImages([...images, ...newImages]);
-  };
-  
-  const removeImage = (index) => {
-    const newImages = [...images];
-    URL.revokeObjectURL(newImages[index].preview); // Clean up
-    newImages.splice(index, 1);
-    setImages(newImages);
+  const toggleImage = (imageId) => {
+    setSelectedImages(prev => {
+      if (prev.includes(imageId)) {
+        return prev.filter(id => id !== imageId);
+      } else if (prev.length < 5) {
+        return [...prev, imageId];
+      }
+      return prev;
+    });
   };
   
   const validateForm = () => {
@@ -66,12 +61,17 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
     setSubmitting(true);
 
     try {
+      // Get selected image URLs
+      const selectedImageUrls = selectedImages
+        .map(imageId => STATIC_IMAGES.find(img => img.id === imageId)?.url)
+        .filter(Boolean);
+
       const payload = {
         billNumber: productData?.billNumber,
         productId: productData?.productId,
         rating,
         reviewText: reviewText.trim(),
-        images: images.map(img => img.preview)
+        images: selectedImageUrls
       };
 
       const response = await fetch(buildApiUrl('/reviews/submit'), {
@@ -96,15 +96,17 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
       const reviewData = {
         rating,
         reviewText: reviewText.trim(),
-        images: images.map(img => img.preview),
+        images: selectedImageUrls,
         productData,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        isVerified: true
       };
 
       if (onSubmit) {
         onSubmit(reviewData);
       }
-    } catch {
+    } catch (error) {
+      console.error('Review submit error:', error);
       setErrors((prev) => ({
         ...prev,
         submit: 'Failed to submit review. Please try again.'
@@ -164,47 +166,38 @@ const ReviewForm = ({ productData, onSubmit, onCancel }) => {
           {errors.reviewText && <span className="error-text">{errors.reviewText}</span>}
         </div>
         
-        {/* Image Upload */}
+        {/* Image Selection */}
         <div className="form-group">
           <label>Add Photos (Optional)</label>
-          <p className="help-text">Upload images of the product at your site/workshop (Max 5)</p>
+          <p className="help-text">Select photos of the product at your site/workshop (Max 5)</p>
           
-          <div className="image-upload-container">
-            {/* Upload Button */}
-            {images.length < 5 && (
-              <label className="add-photo-btn">
+          <div className="image-selection-grid">
+            {STATIC_IMAGES.map((img) => (
+              <label key={img.id} className="image-option">
                 <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  disabled={submitting}
-                  style={{ display: 'none' }}
+                  type="checkbox"
+                  checked={selectedImages.includes(img.id)}
+                  onChange={() => toggleImage(img.id)}
+                  disabled={submitting || (selectedImages.length >= 5 && !selectedImages.includes(img.id))}
                 />
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
-                  <path d="M21 15L16 10L5 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Add Photo</span>
+                <div className="image-preview-checkbox">
+                  <img src={img.url} alt={img.label} />
+                  <div className="image-label">{img.label}</div>
+                  {selectedImages.includes(img.id) && (
+                    <div className="image-selected">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                    </div>
+                  )}
+                </div>
               </label>
-            )}
-            
-            {/* Image Previews */}
-            {images.map((img, index) => (
-              <div key={index} className="image-preview">
-                <img src={img.preview} alt={`Preview ${index + 1}`} />
-                <button
-                  type="button"
-                  className="remove-image-btn"
-                  onClick={() => removeImage(index)}
-                  disabled={submitting}
-                >
-                  ×
-                </button>
-              </div>
             ))}
           </div>
+          
+          {selectedImages.length > 0 && (
+            <p className="selected-count">Selected: {selectedImages.length}/5 images</p>
+          )}
         </div>
         
         {/* Form Actions */}
