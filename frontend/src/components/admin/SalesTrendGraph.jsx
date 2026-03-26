@@ -96,6 +96,14 @@ const isSparseOrSkewedTrend = (data, range) => {
     return nonZeroValues.length < 3 || maxShare > 0.86;
 };
 
+const normalizeTrendData = (data = []) => (
+    data.map((point, index) => ({
+        ...point,
+        // Recharts can misplace points when X values repeat (e.g., day "25" across months).
+        xValue: point?.fullDate ? `${point.fullDate}-${index}` : `${point?.label || ''}-${index}`
+    }))
+);
+
 const SalesTrendGraph = () => {
     const [selectedRange, setSelectedRange] = useState('1M');
     const [chartData, setChartData] = useState([]);
@@ -128,16 +136,16 @@ const SalesTrendGraph = () => {
         adminApi.getSalesTrend(selectedRange)
             .then((res) => {
                 if (res.success && Array.isArray(res.data) && res.data.length > 0 && !isSparseOrSkewedTrend(res.data, selectedRange)) {
-                    setChartData(res.data);
+                    setChartData(normalizeTrendData(res.data));
                     setUsingMockData(false);
                     return;
                 }
 
-                setChartData(buildMockTrendData(selectedRange));
+                setChartData(normalizeTrendData(buildMockTrendData(selectedRange)));
                 setUsingMockData(true);
             })
             .catch(() => {
-                setChartData(buildMockTrendData(selectedRange));
+                setChartData(normalizeTrendData(buildMockTrendData(selectedRange)));
                 setUsingMockData(true);
             })
             .finally(() => setLoadingChart(false));
@@ -211,11 +219,12 @@ const SalesTrendGraph = () => {
                         <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                             <XAxis
-                                dataKey="label"
+                                dataKey="xValue"
                                 stroke="#6b7280"
                                 tick={{ fontSize: 13 }}
                                 tickLine={false}
                                 axisLine={{ stroke: '#d1d5db' }}
+                                tickFormatter={(_, index) => chartData[index]?.label || ''}
                             />
                             <YAxis
                                 stroke="#6b7280"
