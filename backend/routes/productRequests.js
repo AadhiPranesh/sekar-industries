@@ -9,6 +9,13 @@ const ALLOWED_PURCHASE_TYPE = ['retail', 'wholesale'];
 
 const normalizeString = (value) => String(value || '').trim();
 
+const parseCurrencyLikeNumber = (value) => {
+    if (value === undefined || value === null) return null;
+    const cleaned = String(value).replace(/[^\d.-]/g, '');
+    const parsed = Number.parseFloat(cleaned);
+    return Number.isFinite(parsed) ? parsed : null;
+};
+
 const getPriority = (quantity, purchaseType) => {
     if (quantity >= 10 || purchaseType === 'wholesale') {
         return 'high';
@@ -62,6 +69,8 @@ router.post('/', requireUserSession, async (req, res) => {
         const quantity = Number.parseInt(req.body.quantity, 10);
         const purchaseType = normalizeString(req.body.purchaseType).toLowerCase() || 'retail';
         const message = normalizeString(req.body.message);
+        const productUnitPrice = parseCurrencyLikeNumber(productPrice);
+        const estimatedTotal = productUnitPrice !== null ? Number((productUnitPrice * quantity).toFixed(2)) : null;
 
         if (!customerName || !customerEmail || !customerPhone || !productName || !quantity || quantity < 1) {
             return res.status(400).json({
@@ -97,10 +106,12 @@ router.post('/', requireUserSession, async (req, res) => {
             product: {
                 productId,
                 productName,
-                productPrice
+                productPrice,
+                productUnitPrice
             },
             request: {
                 quantity,
+                estimatedTotal,
                 purchaseType,
                 message
             },

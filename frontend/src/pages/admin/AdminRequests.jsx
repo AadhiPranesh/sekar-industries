@@ -107,6 +107,20 @@ const AdminRequests = () => {
         });
     };
 
+    const parseCurrencyLikeNumber = (value) => {
+        if (value === undefined || value === null || value === '') return null;
+        const cleaned = String(value).replace(/[^\d.-]/g, '');
+        const parsed = Number.parseFloat(cleaned);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const formatCurrency = (value) => {
+        if (value === undefined || value === null || value === '') return '-';
+        const numberValue = Number(value);
+        if (!Number.isFinite(numberValue)) return '-';
+        return `₹${numberValue.toLocaleString('en-IN')}`;
+    };
+
     return (
         <div className="admin-page">
             <div className="admin-page-header">
@@ -188,6 +202,7 @@ const AdminRequests = () => {
                                     <th>Customer</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
+                                    <th>Total</th>
                                     <th>Priority</th>
                                     <th>Status</th>
                                     <th>Received</th>
@@ -197,7 +212,7 @@ const AdminRequests = () => {
                             <tbody>
                                 {requests.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} style={{ textAlign: 'center', color: 'var(--admin-text-light)' }}>
+                                        <td colSpan={8} style={{ textAlign: 'center', color: 'var(--admin-text-light)' }}>
                                             No requests found for selected filters.
                                         </td>
                                     </tr>
@@ -213,6 +228,15 @@ const AdminRequests = () => {
                                                         : ''
                                             }}
                                         >
+                                            {(() => {
+                                                const quantity = Number(item.request?.quantity) || 0;
+                                                const fromRequest = item.request?.estimatedTotal;
+                                                const fromUnitPrice = item.product?.productUnitPrice;
+                                                const fromProductPrice = parseCurrencyLikeNumber(item.product?.productPrice);
+                                                const computedTotal = fromRequest ?? ((fromUnitPrice ?? fromProductPrice) !== null ? (fromUnitPrice ?? fromProductPrice) * quantity : null);
+
+                                                return (
+                                                    <>
                                             <td>
                                                 <p className="font-semibold" style={{ margin: 0 }}>{item.customer?.name}</p>
                                                 <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: 'var(--admin-text-light)' }}>{item.customer?.email}</p>
@@ -225,6 +249,7 @@ const AdminRequests = () => {
                                             <td>
                                                 {item.request?.quantity} ({item.request?.purchaseType})
                                             </td>
+                                            <td>{computedTotal !== null ? formatCurrency(computedTotal) : '-'}</td>
                                             <td>
                                                 <span className={`status-badge ${item.priority === 'high' ? 'status-warning' : 'status-success'}`}>
                                                     {item.priority === 'high' ? 'High' : 'Normal'}
@@ -272,6 +297,9 @@ const AdminRequests = () => {
                                                     />
                                                 </div>
                                             </td>
+                                                    </>
+                                                );
+                                            })()}
                                         </tr>
                                     ))
                                 )}

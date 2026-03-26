@@ -21,6 +21,12 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
+  const quantityValue = Number.parseInt(formData.quantity, 10) || 0;
+  const unitPriceValue = Number.parseFloat(String(product?.price ?? '').replace(/[^\d.-]/g, ''));
+  const hasUnitPrice = Number.isFinite(unitPriceValue);
+  const estimatedTotal = hasUnitPrice ? unitPriceValue * quantityValue : null;
+  const formatCurrency = (value) => `₹${Number(value).toLocaleString('en-IN')}`;
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -324,12 +330,18 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed #ced4da' }}>
                     <span style={{ fontSize: '14px', color: '#666' }}>Base Price:</span>
-                    <strong style={{ fontSize: '16px', color: '#2D473E' }}>{product?.price}</strong>
+                    <strong style={{ fontSize: '16px', color: '#2D473E' }}>{hasUnitPrice ? formatCurrency(unitPriceValue) : (product?.price || '-')}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
                     <span style={{ fontSize: '14px', color: '#666' }}>Quantity:</span>
                     <strong style={{ fontSize: '16px', color: '#2D473E' }}>{formData.quantity} {product?.unit}</strong>
                   </div>
+                  {estimatedTotal !== null && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', marginTop: '4px', borderTop: '1px dashed #ced4da' }}>
+                      <span style={{ fontSize: '14px', color: '#666' }}>Estimated Total:</span>
+                      <strong style={{ fontSize: '18px', color: '#1e3a2f' }}>{formatCurrency(estimatedTotal)}</strong>
+                    </div>
+                  )}
                   {parseInt(formData.quantity) >= 10 && (
                     <div style={{ 
                       marginTop: '16px', 
