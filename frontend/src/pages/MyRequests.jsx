@@ -102,6 +102,20 @@ const MyRequests = () => {
         });
     };
 
+    const parseCurrencyLikeNumber = (value) => {
+        if (value === undefined || value === null || value === '') return null;
+        const cleaned = String(value).replace(/[^\d.-]/g, '');
+        const parsed = Number.parseFloat(cleaned);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const formatCurrency = (value) => {
+        if (value === undefined || value === null || value === '') return '-';
+        const numberValue = Number(value);
+        if (!Number.isFinite(numberValue)) return '-';
+        return `₹${numberValue.toLocaleString('en-IN')}`;
+    };
+
     return (
         <div className="page">
             <Header />
@@ -164,6 +178,7 @@ const MyRequests = () => {
                                                 <tr>
                                                     <th>Product</th>
                                                     <th>Quantity</th>
+                                                    <th>Total</th>
                                                     <th>Status</th>
                                                     <th>Message</th>
                                                     <th>Sent At</th>
@@ -172,7 +187,7 @@ const MyRequests = () => {
                                             <tbody>
                                                 {requests.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--admin-text-light)' }}>
+                                                        <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--admin-text-light)' }}>
                                                             {statusFilter === 'all' ? (
                                                                 <span>
                                                                     You haven&apos;t made any requests yet.{' '}
@@ -186,6 +201,15 @@ const MyRequests = () => {
                                                 ) : (
                                                     requests.map((requestItem) => (
                                                         <tr key={requestItem._id}>
+                                                            {(() => {
+                                                                const quantity = Number(requestItem.request?.quantity) || 0;
+                                                                const fromRequest = requestItem.request?.estimatedTotal;
+                                                                const fromUnitPrice = requestItem.product?.productUnitPrice;
+                                                                const fromProductPrice = parseCurrencyLikeNumber(requestItem.product?.productPrice);
+                                                                const computedTotal = fromRequest ?? ((fromUnitPrice ?? fromProductPrice) !== null ? (fromUnitPrice ?? fromProductPrice) * quantity : null);
+
+                                                                return (
+                                                                    <>
                                                             <td>
                                                                 <p className="font-semibold" style={{ margin: 0 }}>{requestItem.product?.productName || '-'}</p>
                                                                 <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: 'var(--admin-text-light)' }}>
@@ -193,6 +217,7 @@ const MyRequests = () => {
                                                                 </p>
                                                             </td>
                                                             <td>{requestItem.request?.quantity || '-'} ({requestItem.request?.purchaseType || '-'})</td>
+                                                            <td>{computedTotal !== null ? formatCurrency(computedTotal) : '-'}</td>
                                                             <td>
                                                                 <span className={`status-badge ${statusClassMap[requestItem.status] || 'status-warning'}`}>
                                                                     {String(requestItem.status || 'new').replace('_', ' ')}
@@ -200,6 +225,9 @@ const MyRequests = () => {
                                                             </td>
                                                             <td style={{ maxWidth: '320px' }}>{requestItem.request?.message || '-'}</td>
                                                             <td>{formatDate(requestItem.createdAt)}</td>
+                                                                    </>
+                                                                );
+                                                            })()}
                                                         </tr>
                                                     ))
                                                 )}

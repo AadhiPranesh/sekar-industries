@@ -76,13 +76,22 @@ const Reviews = () => {
   ]);
   
   const handleReviewSubmitted = (newReview) => {
-    // Add new review to the list
+    // Map review data to required format
     const reviewToAdd = {
       id: reviews.length + 1,
       userName: 'You', // In production, get from auth
-      ...newReview,
-      helpfulCount: 0
+      userAvatar: null,
+      rating: newReview.rating,
+      reviewText: newReview.reviewText,
+      images: newReview.images || [],
+      isVerified: newReview.isVerified !== undefined ? newReview.isVerified : true,
+      date: newReview.date || new Date().toISOString(),
+      helpfulCount: 0,
+      ownerReply: ''
     };
+    
+    // Log for debugging
+    console.log('New review added:', reviewToAdd);
     
     setReviews([reviewToAdd, ...reviews]);
   };

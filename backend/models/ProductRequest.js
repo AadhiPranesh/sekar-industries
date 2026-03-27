@@ -17,10 +17,12 @@ const productRequestSchema = new mongoose.Schema(
         product: {
             productId: { type: String, trim: true, default: '' },
             productName: { type: String, required: true, trim: true },
-            productPrice: { type: String, trim: true, default: '' }
+            productPrice: { type: String, trim: true, default: '' },
+            productUnitPrice: { type: Number, default: null }
         },
         request: {
             quantity: { type: Number, required: true, min: 1 },
+            estimatedTotal: { type: Number, default: null },
             purchaseType: {
                 type: String,
                 enum: ['retail', 'wholesale'],
