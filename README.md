@@ -1,10 +1,10 @@
 # Sekar Industries - Full Stack Industrial Platform
 
 > A modern full-stack application for Sekar Industries with React frontend, Express/Mongo backend, admin analytics, and email-based password reset OTP.
-#Demo  url : https://sekar-industries-3.onrender.com/
-> Admin https://sekar-industries-3.onrender.com/admin/
->email:admin@sekarindustries.com
-> password:Admin@12345
+-Demo  url : https://sekar-industries-3.onrender.com/
+-Admin https://sekar-industries-3.onrender.com/admin/
+-email:admin@sekarindustries.com
+-password:Admin@12345
 ## Current Project Status
 
 - Frontend and backend are integrated and running in local development.
