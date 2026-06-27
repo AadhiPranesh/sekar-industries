@@ -99,7 +99,7 @@ const About = () => {
                             <div className="mission-card">
                                 <div className="mission-icon"><Icons.Target /></div>
                                 <h3>Our Mission</h3>
-                                <p>{businessInfo?.mission || 'To provide reliable, quality products with honest service and fair prices.'}</p>
+                                <p>{businessInfo?.mission || 'To provide reliable, quality products with honest service, fair price ans satisfy users.'}</p>
                             </div>
                             <div className="mission-card">
                                 <div className="mission-icon"><Icons.Rocket /></div>
